@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>电视盒子pk</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js">
+    </script>
+    <style>
+        /* ===== 全局 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0b0f1a;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            color: #c8dbe9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 30px 20px;
+        }
+        .container {
+            max-width: 1600px;
+            width: 100%;
+            background: rgba(12, 20, 35, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 32px 36px 40px;
+            border: 1px solid rgba(0, 180, 255, 0.12);
+            box-shadow: 0 20px 60px rgba(0, 20, 80, 0.6);
+            transition: filter 0.3s;
+        }
+        .container.blur {
+            filter: blur(4px);
+            pointer-events: none;
+            user-select: none;
+        }
+        .page-title {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7eb8ff, #a78bfa, #6b8cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-shadow: 0 0 60px rgba(80, 140, 255, 0.3);
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 180, 255, 0.08);
+        }
+        .header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 200, 255, 0.08);
+        }
+        .header-sub {
+            font-size: 18px;
+            font-weight: 400;
+            color: #a0bcdb;
+            letter-spacing: 1.2px;
+            border-left: 4px solid #6b8cff;
+            padding: 10px 20px;
+            background: linear-gradient(90deg, rgba(107, 140, 255, 0.08), transparent);
+            border-radius: 8px;
+            display: inline-block;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(107, 140, 255, 0.15);
+            border-left-width: 4px;
+            align-self: flex-start;
+        }
+        .header-sub a {
+            color: #7eb8ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.25s, text-shadow 0.25s;
+            border-bottom: 1px dashed rgba(126, 184, 255, 0.3);
+            padding-bottom: 1px;
+        }
+        .header-sub a:hover {
+            color: #a78bfa;
+            text-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
+            border-bottom-color: #a78bfa;
+        }
+        .header-sub .highlight {
+            color: #f5b85b;
+            font-weight: 500;
+        }
+        .contact-info {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #8aa8d0;
+            padding-left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .contact-info a {
+            color: #7eb8ff;
+            text-decoration: none;
+            transition: color 0.25s, text-shadow 0.25s;
+            border-bottom: 1px solid rgba(126, 184, 255, 0.2);
+            padding-bottom: 2px;
+        }
+        .contact-info a:hover {
+            color: #a78bfa;
+            text-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
+            border-bottom-color: #a78bfa;
+        }
+        .contact-info .icon {
+            font-size: 18px;
+        }
+        .section-label {
+            font-size: 24px;
+            font-weight: 600;
+            color: #d6e8ff;
+            letter-spacing: 2px;
+            margin-top: 6px;
+            margin-bottom: 18px;
+            padding-left: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(0, 180, 255, 0.2), transparent);
+        }
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 20px;
+            background: rgba(8, 16, 30, 0.6);
+            border: 1px solid rgba(0, 180, 255, 0.08);
+            padding: 4px 0;
+            margin-bottom: 32px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 1300px;
+        }
+        th {
+            background: rgba(0, 160, 255, 0.08);
+            color: #7eb8ff;
+            font-weight: 500;
+            padding: 7px 5px;
+            text-align: center;
+            border-bottom: 2px solid rgba(0, 180, 255, 0.15);
+            letter-spacing: 0.5px;
+            font-size: 12px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        th.sortable:hover {
+            background: rgba(0, 160, 255, 0.18);
+        }
+        th .sort-icon {
+            margin-left: 4px;
+            font-size: 10px;
+        }
+        td {
+            padding: 6px 4px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #c8d6e8;
+            font-weight: 400;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background: rgba(0, 160, 255, 0.06);
+        }
+        .model-name {
+            font-weight: 600;
+            color: #d6e8ff;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+        .model-name:hover {
+            color: #7eb8ff;
+            text-shadow: 0 0 12px rgba(126, 184, 255, 0.3);
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+            background: rgba(0, 200, 255, 0.08);
+            border: 1px solid rgba(0, 200, 255, 0.12);
+            color: #8ccbff;
+            white-space: nowrap;
+        }
+        .badge-tv {
+            background: rgba(255, 180, 50, 0.12);
+            border-color: rgba(255, 180, 50, 0.2);
+            color: #f5b85b;
+        }
+        .badge-chip {
+            background: rgba(100, 200, 255, 0.05);
+            border-color: rgba(100, 200, 255, 0.08);
+            color: #a0c8ff;
+        }
+        .badge-gold {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            font-weight: 600;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.1);
+        }
+        .score-highlight {
+            color: #b0d4ff;
+            font-weight: 500;
+        }
+        .missing {
+            color: #546a7a;
+            font-style: italic;
+        }
+        /* ===== 影音符号 ===== */
+        .symbol {
+            font-size: 22px;
+            font-weight: 700;
+            display: inline-block;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .symbol-yes {
+            color: #4ade80;
+            text-shadow: 0 0 12px rgba(74, 222, 128, 0.3);
+        }
+        .symbol-no {
+            color: #f87171;
+            text-shadow: 0 0 12px rgba(248, 113, 113, 0.3);
+        }
+        .note-text {
+            color: #8aa8d0;
+            font-size: 12px;
+            margin-left: 2px;
+            white-space: nowrap;
+        }
+        /* ===== 图表 ===== */
+        .chart-box {
+            background: rgba(8, 16, 30, 0.5);
+            border-radius: 24px;
+            border: 1px solid rgba(0, 180, 255, 0.08);
+            padding: 16px 16px 8px;
+            margin-top: 10px;
+        }
+        .chart-box .chart-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #a0c8e8;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            padding-left: 6px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 280px;
+        }
+        /* ===== 双栏卡片 ===== */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 32px;
+        }
+        .bottom-card {
+            background: rgba(8, 16, 30, 0.5);
+            border-radius: 24px;
+            border: 1px solid rgba(0, 180, 255, 0.08);
+            padding: 20px 24px 24px;
+            transition: border-color 0.3s;
+        }
+        .bottom-card:hover {
+            border-color: rgba(0, 200, 255, 0.2);
+        }
+        .bottom-card .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d6e8ff;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 180, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bottom-card .card-title .icon {
+            font-size: 20px;
+        }
+        .bottom-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .bottom-card ul li {
+            padding: 6px 0;
+            font-size: 14px;
+            color: #b0cce0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .bottom-card ul li:last-child {
+            border-bottom: none;
+        }
+        .bottom-card ul li .dot {
+            color: #4f8cff;
+            font-size: 10px;
+        }
+        .bottom-card ul li a {
+            color: #7eb8ff;
+            text-decoration: none;
+            transition: color 0.25s, text-shadow 0.25s;
+            font-weight: 400;
+        }
+        .bottom-card ul li a:hover {
+            color: #a78bfa;
+            text-shadow: 0 0 20px rgba(167, 139, 250, 0.25);
+            text-decoration: underline;
+        }
+        .brand-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: #a0c8e8;
+            background: rgba(0, 180, 255, 0.04);
+            padding: 0 10px;
+            border-radius: 4px;
+            border-left: 2px solid rgba(0, 180, 255, 0.2);
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            pointer-events: auto;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-card {
+            background: rgba(12, 20, 35, 0.95);
+            border: 1px solid rgba(0, 180, 255, 0.2);
+            border-radius: 30px;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px 28px 24px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 180, 255, 0.1);
+            backdrop-filter: blur(4px);
+            animation: modalFadeIn 0.25s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .modal-card .close-btn {
+            float: right;
+            background: none;
+            border: none;
+            color: #8aa8d0;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+            line-height: 1;
+        }
+        .modal-card .close-btn:hover {
+            color: #f87171;
+            transform: rotate(90deg);
+        }
+        .modal-card .device-name {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7eb8ff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        .modal-card .device-tag {
+            font-size: 14px;
+            color: #8aa8d0;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 180, 255, 0.1);
+            padding-bottom: 12px;
+        }
+        .modal-card .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 16px;
+            font-size: 14px;
+        }
+        .modal-card .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .modal-card .detail-item .label {
+            color: #8aa8d0;
+        }
+        .modal-card .detail-item .value {
+            color: #d6e8ff;
+            font-weight: 500;
+            text-align: right;
+        }
+        .modal-card .av-section {
+            margin-top: 16px;
+            border-top: 1px solid rgba(0, 180, 255, 0.1);
+            padding-top: 14px;
+        }
+        .modal-card .av-section .av-title {
+            font-size: 14px;
+            color: #a0c8e8;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .modal-card .av-section .av-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 6px 12px;
+        }
+        .modal-card .av-section .av-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 2px 0;
+        }
+        .modal-card .av-section .av-item .label {
+            color: #8aa8d0;
+        }
+        .modal-card .av-section .av-item .value {
+            font-weight: 600;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 13px;
+            color: #3a5a7a;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 18px;
+            letter-spacing: 0.5px;
+        }
+        .footer span {
+            color: #5a7a9a;
+        }
+        /* ===== 响应式 ===== */
+        @media (max-width: 1100px) {
+            .container {
+                padding: 20px 16px;
+            }
+            .page-title {
+                font-size: 30px;
+            }
+            .header-sub {
+                font-size: 15px;
+                padding: 8px 14px;
+            }
+            .contact-info {
+                font-size: 14px;
+                padding-left: 16px;
+            }
+            .section-label {
+                font-size: 20px;
+            }
+            th,
+            td {
+                font-size: 11px;
+                padding: 5px 3px;
+            }
+            table {
+                min-width: 1000px;
+            }
+            .bottom-grid {
+                gap: 16px;
+            }
+            .bottom-card {
+                padding: 14px 16px;
+            }
+            .bottom-card ul li {
+                font-size: 12px;
+            }
+            .symbol {
+                font-size: 18px;
+            }
+            .note-text {
+                font-size: 10px;
+            }
+            .brand-label {
+                font-size: 14px;
+            }
+            .modal-card {
+                padding: 24px 20px;
+                max-width: 440px;
+            }
+            .modal-card .device-name {
+                font-size: 24px;
+            }
+            .modal-card .detail-grid {
+                font-size: 13px;
+            }
+            .modal-card .av-section .av-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 600px) {
+            .page-title {
+                font-size: 24px;
+            }
+            .bottom-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .bottom-card {
+                padding: 12px;
+            }
+            .bottom-card .card-title {
+                font-size: 14px;
+            }
+            .bottom-card ul li {
+                font-size: 11px;
+                padding: 4px 0;
+            }
+            .contact-info {
+                font-size: 12px;
+                flex-wrap: wrap;
+            }
+            .section-label {
+                font-size: 17px;
+            }
+            th,
+            td {
+                padding: 4px 2px;
+                font-size: 10px;
+            }
+            .symbol {
+                font-size: 16px;
+            }
+            .note-text {
+                font-size: 9px;
+            }
+            .brand-label {
+                font-size: 13px;
+                padding: 0 6px;
+            }
+            .modal-card {
+                padding: 18px 16px;
+                max-width: 100%;
+                border-radius: 20px;
+            }
+            .modal-card .device-name {
+                font-size: 20px;
+            }
+            .modal-card .detail-grid {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+            .modal-card .av-section .av-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <div class="page-title">⚡ 电视盒子PK</div>
+        <div class="header">
+            <div class="header-sub">
+                📊 该数据来源于B站数码区UP主
+                <a href="https://space.bilibili.com/390423616/lists/7672860?type=season" target="_blank">当时只道是-寻常-</a>
+                <span class="highlight">❤️</span>
+            </div>
+            <div class="contact-info">
+                <span class="icon">✉️</span> 联系邮箱：
+                <a href="mailto:chjiang2020@163.com">chjiang2020@163.com</a>
+            </div>
+        </div>
+
+        <div class="section-label">📺 电视盒子硬件配置 <span style="font-size:14px;font-weight:400;color:#8aa8d0;margin-left:12px;">（点击可排序列：总分、制程、CPU、GPU、内存+硬盘、内存带宽、系统跑分、Wifi）</span></div>
+        <div class="table-wrap">
+            <table id="mainTable">
+                <thead>
+                    <tr>
+                        <th data-col="name">名称</th>
+                        <th data-col="config">配置<br><span style="font-weight:300;font-size:10px;">(内存+硬盘)</span></th>
+                        <th data-col="chip">芯片</th>
+                        <th data-col="total" class="sortable">总分</th>
+                        <th data-col="process" class="sortable">制程</th>
+                        <th data-col="cpu" class="sortable">CPU</th>
+                        <th data-col="cores">核心</th>
+                        <th data-col="gpuScore" class="sortable">GPU</th>
+                        <th data-col="gpuName">GPU名称</th>
+                        <th data-col="mem" class="sortable">内存+硬盘</th>
+                        <th data-col="bandwidth" class="sortable">内存带宽<br><span style="font-weight:300;font-size:10px;">(GB/s)</span></th>
+                        <th data-col="sys" class="sortable">系统跑分</th>
+                        <th data-col="android">安卓版本</th>
+                        <th data-col="eth">网口</th>
+                        <th data-col="wifi" class="sortable">Wifi</th>
+                        <th data-col="usb">USB</th>
+                    </tr>
+                </thead>
+                <tbody id="mainTbody"></tbody>
+            </table>
+        </div>
+
+        <div class="chart-box">
+            <div class="chart-title">📊 性能三围：总分 · CPU · GPU</div>
+            <div id="chartCpuGpu" class="chart-container"></div>
+        </div>
+
+        <div class="section-label">🎬 电视盒子影音支持</div>
+        <div class="table-wrap">
+            <table id="avTable">
+                <thead>
+                    <tr>
+                        <th>型号</th><th>4K60Hz</th><th>1080P120Hz</th><th>4K120Hz</th>
+                        <th>HDR10</th><th>HDR10+</th><th>杜比视界</th><th>杜比全景声</th><th>DTS:X</th>
+                    </tr>
+                </thead>
+                <tbody id="avTbody"></tbody>
+            </table>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="bottom-card">
+                <div class="card-title"><span class="icon">📺</span> 电视盒子推荐</div>
+                <ul>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/SfNFnbZ" target="_blank">电视盒子推荐2026.06</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/XZt9qym" target="_blank">电视盒子推荐2026.02</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/vyIcrMy" target="_blank">电视盒子推荐2025.12</a></li>
+                </ul>
+            </div>
+            <div class="bottom-card">
+                <div class="card-title"><span class="icon">🛒</span> 自购评测</div>
+                <ul>
+                    <li><span class="dot">▸</span> <span class="brand-label">小米</span>
+                        <a href="https://b23.tv/fHUECSt" target="_blank">小米盒子5</a>
+                        <a href="https://b23.tv/cxhyPkD" target="_blank">小米盒子4s max</a></li>
+                    <li><span class="dot">▸</span> <span class="brand-label">腾讯极光</span>
+                        <a href="https://b23.tv/4DGN5vE" target="_blank">极光盒子7air</a>
+                        <a href="https://b23.tv/w7PyRMi" target="_blank">极光盒子3pro</a>
+                        <a href="https://b23.tv/2xjSmiN" target="_blank">极光盒子6se</a></li>
+                    <li><span class="dot">▸</span> <span class="brand-label">当贝</span>
+                        <a href="https://b23.tv/7Hf2cyW" target="_blank">当贝盒子5（新）</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer"><span>数据仅供参考，请勿创造需求，理性购买</span></div>
+    </div>
+
+    <!-- 模态框 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-card">
+            <button class="close-btn" id="modalCloseBtn">✕</button>
+            <div class="device-name" id="modalDeviceName"></div>
+            <div class="device-tag" id="modalDeviceTag"></div>
+            <div class="detail-grid" id="modalDetailGrid"></div>
+            <div class="av-section">
+                <div class="av-title">🎬 影音支持</div>
+                <div class="av-grid" id="modalAvGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 数据源 ====================
+        const devices = [
+            { name: '当贝H5（新）', config: '2+64', chip: '全志H618', total: 91947, process: '28nm', cpu: 26430,
+                cores: '4核A53', gpuScore: 12689, gpuName: 'Mali-G31 MP2', mem: 35224, bandwidth: 5.4, sys: 17604,
+                android: '12', eth: '无', wifi: '双频WiFi5', usb: '2.0', isTv: false },
+            { name: '小米4s max', config: '4+64', chip: '晶晨S905X3', total: 113794, process: '12nm', cpu: 29986,
+                cores: '4核A55', gpuScore: 18080, gpuName: 'Mali-G31 MP2', mem: 41996, bandwidth: 8.5, sys: 23732,
+                android: '9', eth: '无', wifi: '双频WiFi5', usb: '2.0', isTv: false },
+            { name: '极光3pro', config: '4+32', chip: '晶晨S905X3', total: 119063, process: '12nm', cpu: 31096,
+                cores: '4核A55', gpuScore: 18333, gpuName: 'Mali-G31 MP2', mem: 43238, bandwidth: 6.0, sys: 26396,
+                android: '9', eth: '千兆', wifi: '双频WiFi5', usb: '2.0+3.0', isTv: false },
+            { name: '极光6se', config: '1+32', chip: '全志H618', total: 76415, process: '28nm', cpu: 29077,
+                cores: '4核A53', gpuScore: 0, gpuName: 'Mali-G31 MP2', mem: 36597, bandwidth: 6.1, sys: 10741,
+                android: '10', eth: '百兆', wifi: '2.4G WiFi', usb: '2.0', isTv: false },
+            { name: '极光7air', config: '4+32', chip: '晶晨S905X5M', total: 186164, process: '6nm', cpu: 41955,
+                cores: '4核A55', gpuScore: 42274, gpuName: 'Mali-G310 V2', mem: 51245, bandwidth: 8.8, sys: 50690,
+                android: '14', eth: '百兆', wifi: '双频WiFi6', usb: '2.0+Type-C', isTv: false },
+            { name: '小米5', config: '2+32', chip: '晶晨S905X5M', total: 164288, process: '6nm', cpu: 40963,
+                cores: '4核A55', gpuScore: 42968, gpuName: 'Mali-G310 V2', mem: 49651, bandwidth: 8.6, sys: 30706,
+                android: '14', eth: '无', wifi: '双频WiFi6', usb: '2.0', isTv: false },
+            { name: '雷鸟鹏6', config: '3+64', chip: '晶晨TC8000', total: 133909, process: '12nm', cpu: 27591,
+                cores: '5核A55', gpuScore: 36756, gpuName: 'Mali-G57', mem: 45522, bandwidth: 9.5, sys: 24040,
+                android: '11', eth: '百兆', wifi: '双频WiFi5', usb: '2.0+3.0', isTv: true }
+        ];
+
+        const avData = [
+            { name: '当贝H5（新）', '4K60Hz': true, '1080P120Hz': false, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
+                '杜比视界': false, '杜比全景声': true, 'DTS:X': true },
+            { name: '小米4s max', '4K60Hz': true, '1080P120Hz': false, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
+                '杜比视界': false, '杜比全景声': true, 'DTS:X': true },
+            { name: '极光3pro', '4K60Hz': true, '1080P120Hz': false, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
+                '杜比视界': false, '杜比全景声': true, 'DTS:X': true },
+            { name: '极光6se', '4K60Hz': true, '1080P120Hz': false, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
+                '杜比视界': false, '杜比全景声': true, 'DTS:X': true },
+            { name: '极光7air', '4K60Hz': true, '1080P120Hz': false, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
+                '杜比视界': true, '杜比全景声': true, 'DTS:X': false },
+            { name: '小米5', '4K60Hz': true, '1080P120Hz': false, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
+                '杜比视界': true, '杜比全景声': true, 'DTS:X': true },
+            { name: '雷鸟鹏6', '4K60Hz': true, '1080P120Hz': true, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
+                '杜比视界': false, '杜比全景声': true, 'DTS:X': true }
+        ];
+
+        // ==================== 通用工具 ====================
+        const getAvCell = (deviceName, col, supported) => {
+            const symbol = supported ? '✔' : '×';
+            const cls = supported ? 'symbol symbol-yes' : 'symbol symbol-no';
+            let note = '';
+            if (supported) {
+                if ((col === '杜比全景声' || col === 'DTS:X') &&
+                    ['当贝H5（新）', '极光3pro', '极光6se'].includes(deviceName)) {
+                    note = '需源码透传';
+                }
+            }
+            return `<span class="${cls}">${symbol}</span>` + (note ? ` <span class="note-text">(${note})</span>` : '');
+        };
+
+        const findDevice = (name) => devices.find(d => d.name === name);
+        const findAv = (name) => avData.find(d => d.name === name);
+
+        // ==================== 渲染主表格 ====================
+        function renderMain(data) {
+            const tbody = document.getElementById('mainTbody');
+            tbody.innerHTML = data.map(d => {
+                const nameHtml =
+                    `<span class="model-name" data-name="${d.name}">${d.name}</span>${d.isTv ? ' <span class="badge badge-tv">电视</span>' : ''}`;
+                const ethHtml = d.eth === '千兆' ? `<span class="badge badge-gold">千兆</span>` : d.eth;
+                const usbHtml = d.usb !== '2.0' ? `<span class="badge badge-gold">${d.usb}</span>` : d.usb;
+                return `<tr>
+                    <td>${nameHtml}</td>
+                    <td>${d.config}</td>
+                    <td><span class="badge badge-chip">${d.chip}</span></td>
+                    <td class="score-highlight">${d.total.toLocaleString()}</td>
+                    <td><span class="badge" style="background:rgba(0,200,255,0.04);border-color:rgba(0,200,255,0.08);">${d.process}</span></td>
+                    <td class="score-highlight">${d.cpu.toLocaleString()}</td>
+                    <td>${d.cores}</td>
+                    <td class="score-highlight">${d.gpuScore.toLocaleString()}</td>
+                    <td>${d.gpuName || '—'}</td>
+                    <td class="score-highlight">${(d.mem ?? '—').toLocaleString()}</td>
+                    <td>${d.bandwidth ?? '—'}</td>
+                    <td class="score-highlight">${(d.sys ?? '—').toLocaleString()}</td>
+                    <td><span class="badge">${d.android}</span></td>
+                    <td>${ethHtml}</td>
+                    <td>${d.wifi}</td>
+                    <td>${usbHtml}</td>
+                </tr>`;
+            }).join('');
+
+            document.querySelectorAll('.model-name').forEach(el => {
+                el.addEventListener('click', () => openModal(el.dataset.name));
+            });
+            updateChart(data);
+        }
+
+        // ==================== 渲染影音表格 ====================
+        function renderAv(data) {
+            const tbody = document.getElementById('avTbody');
+            const headers = ['4K60Hz', '1080P120Hz', '4K120Hz', 'HDR10', 'HDR10+', '杜比视界', '杜比全景声', 'DTS:X'];
+            tbody.innerHTML = data.map(item => {
+                const nameHtml =
+                    `${item.name}${item.name === '雷鸟鹏6' ? ' <span class="badge badge-tv">电视</span>' : ''}`;
+                const cells = headers.map(key => {
+                    const supported = item[key];
+                    return `<td>${getAvCell(item.name, key, supported)}</td>`;
+                }).join('');
+                return `<tr><td>${nameHtml}</td>${cells}</tr>`;
+            }).join('');
+        }
+
+        // ==================== 图表 ====================
+        let chart;
+        const updateChart = (data) => {
+            const dom = document.getElementById('chartCpuGpu');
+            if (!chart) chart = echarts.init(dom);
+            const models = data.map(d => d.name);
+            const cpuData = data.map(d => d.cpu);
+            const gpuData = data.map(d => d.gpuScore);
+            const totalData = data.map(d => d.total);
+            chart.setOption({
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    formatter: params => {
+                        let res = `<strong>${params[0].axisValue}</strong><br/>`;
+                        params.forEach(p => res += `${p.marker} ${p.seriesName}：${p.value.toLocaleString()}<br/>`);
+                        return res;
+                    }
+                },
+                legend: { data: ['总分', 'CPU', 'GPU'], textStyle: { color: '#b0cce0' }, top: 0, right: 10 },
+                grid: { left: '6%', right: '4%', bottom: '15%', top: '18%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: models,
+                    axisLabel: { color: '#8aa8d0', fontSize: 11, rotate: 20, interval: 0 },
+                    axisLine: { lineStyle: { color: '#2a3a5a' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    splitLine: { lineStyle: { color: '#1a2a3a', type: 'dashed' } },
+                    axisLabel: { color: '#8aa8d0', fontSize: 11 },
+                    name: '跑分',
+                    nameTextStyle: { color: '#6a8aaa', fontSize: 12 }
+                },
+                series: [{
+                    name: '总分',
+                    type: 'bar',
+                    data: totalData,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#f472b6' }, { offset: 1, color: '#be5a9a' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    barWidth: '18%',
+                    barGap: '60%'
+                }, {
+                    name: 'CPU',
+                    type: 'bar',
+                    data: cpuData,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#6b8cff' }, { offset: 1, color: '#4f6bc0' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    barWidth: '18%',
+                    barGap: '60%'
+                }, {
+                    name: 'GPU',
+                    type: 'bar',
+                    data: gpuData,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#a78bfa' }, { offset: 1, color: '#7c5cdb' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    barWidth: '18%',
+                    barGap: '60%'
+                }]
+            });
+            chart.resize();
+        };
+
+        // ==================== 排序 ====================
+        function setupSorting() {
+            const table = document.getElementById('mainTable');
+            const headers = table.querySelectorAll('th.sortable');
+            let state = {};
+            headers.forEach(th => {
+                th.addEventListener('click', function() {
+                    const col = this.dataset.col;
+                    if (!col) return;
+                    const dir = (state[col] || 'asc') === 'asc' ? 'desc' : 'asc';
+                    state[col] = dir;
+                    headers.forEach(h => { const icon = h.querySelector('.sort-icon'); if (icon) icon.remove(); });
+                    const icon = document.createElement('span');
+                    icon.className = 'sort-icon';
+                    icon.textContent = dir === 'asc' ? '▲' : '▼';
+                    this.appendChild(icon);
+
+                    const sorted = [...devices].sort((a, b) => {
+                        let va = a[col] ?? '',
+                            vb = b[col] ?? '';
+                        if (!isNaN(parseFloat(va)) && !isNaN(parseFloat(vb))) { va = parseFloat(va);
+                            vb = parseFloat(vb); }
+                        if (typeof va === 'string') va = va.toLowerCase();
+                        if (typeof vb === 'string') vb = vb.toLowerCase();
+                        return va < vb ? (dir === 'asc' ? -1 : 1) : va > vb ? (dir === 'asc' ? 1 : -1) : 0;
+                    });
+                    devices.length = 0;
+                    devices.push(...sorted);
+                    renderMain(devices);
+                });
+            });
+        }
+
+        // ==================== 模态框 ====================
+        const overlay = document.getElementById('modalOverlay');
+        const closeBtn = document.getElementById('modalCloseBtn');
+        const container = document.getElementById('mainContainer');
+
+        const openModal = (name) => {
+            const d = findDevice(name);
+            const av = findAv(name);
+            if (!d || !av) return;
+            document.getElementById('modalDeviceName').textContent = d.name;
+            document.getElementById('modalDeviceTag').textContent =
+                `${d.config} ｜ ${d.chip} ｜ ${d.isTv ? '电视' : '电视盒子'}`;
+
+            const fields = [
+                { label: '总分', value: d.total.toLocaleString() },
+                { label: '制程', value: d.process },
+                { label: 'CPU', value: d.cpu.toLocaleString() },
+                { label: '核心', value: d.cores },
+                { label: 'GPU', value: d.gpuScore.toLocaleString() },
+                { label: 'GPU名称', value: d.gpuName },
+                { label: '内存+硬盘', value: (d.mem ?? '—').toLocaleString() },
+                { label: '内存带宽 (GB/s)', value: d.bandwidth ?? '—' },
+                { label: '系统跑分', value: (d.sys ?? '—').toLocaleString() },
+                { label: '安卓版本', value: d.android },
+                { label: '网口', value: d.eth },
+                { label: 'Wifi', value: d.wifi },
+                { label: 'USB', value: d.usb }
+            ];
+            document.getElementById('modalDetailGrid').innerHTML = fields.map(f =>
+                `<div class="detail-item"><span class="label">${f.label}</span><span class="value">${f.value}</span></div>`
+            ).join('');
+
+            const avKeys = ['4K60Hz', '1080P120Hz', '4K120Hz', 'HDR10', 'HDR10+', '杜比视界', '杜比全景声', 'DTS:X'];
+            document.getElementById('modalAvGrid').innerHTML = avKeys.map(key => {
+                const supported = av[key];
+                const symbol = supported ? '✔' : '×';
+                const color = supported ? '#4ade80' : '#f87171';
+                return `<div class="av-item"><span class="label">${key}</span><span class="value" style="color:${color}">${symbol}</span></div>`;
+            }).join('');
+
+            overlay.classList.add('active');
+            container.classList.add('blur');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeModal = () => {
+            overlay.classList.remove('active');
+            container.classList.remove('blur');
+            document.body.style.overflow = '';
+        };
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+        closeBtn.addEventListener('click', closeModal);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        // ==================== 初始化 ====================
+        renderMain(devices);
+        renderAv(avData);
+        setupSorting();
+        window.addEventListener('resize', () => { if (chart) chart.resize(); });
+    </script>
+</body>
+</html>
