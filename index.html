@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js">
     </script>
     <style>
-        /* ===== 全局 ===== */
+        /* ===== 精简 + 科技感增强 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -21,18 +21,41 @@
             display: flex;
             justify-content: center;
             padding: 30px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* 粒子画布 */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
         .container {
+            position: relative;
+            z-index: 1;
             max-width: 1600px;
             width: 100%;
-            background: rgba(12, 20, 35, 0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(12, 20, 35, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 40px;
             padding: 32px 36px 40px;
-            border: 1px solid rgba(0, 180, 255, 0.12);
-            box-shadow: 0 20px 60px rgba(0, 20, 80, 0.6);
+            border: 1px solid rgba(0, 180, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 20, 80, 0.6), inset 0 0 80px rgba(0, 180, 255, 0.03);
             transition: filter 0.3s;
+            animation: containerGlow 6s ease-in-out infinite alternate;
+        }
+        @keyframes containerGlow {
+            0% {
+                box-shadow: 0 20px 60px rgba(0, 20, 80, 0.6), inset 0 0 80px rgba(0, 180, 255, 0.03);
+            }
+            100% {
+                box-shadow: 0 20px 80px rgba(0, 80, 200, 0.4), inset 0 0 100px rgba(0, 180, 255, 0.08);
+            }
         }
         .container.blur {
             filter: blur(4px);
@@ -51,7 +74,17 @@
             text-shadow: 0 0 60px rgba(80, 140, 255, 0.3);
             margin-bottom: 20px;
             padding-bottom: 16px;
-            border-bottom: 1px solid rgba(0, 180, 255, 0.08);
+            border-bottom: 1px solid rgba(0, 180, 255, 0.1);
+            animation: titlePulse 4s ease-in-out infinite;
+        }
+        @keyframes titlePulse {
+            0%,
+            100% {
+                text-shadow: 0 0 60px rgba(80, 140, 255, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 100px rgba(80, 140, 255, 0.6);
+            }
         }
         .header {
             display: flex;
@@ -79,7 +112,7 @@
             color: #7eb8ff;
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.25s, text-shadow 0.25s;
+            transition: all 0.3s;
             border-bottom: 1px dashed rgba(126, 184, 255, 0.3);
             padding-bottom: 1px;
         }
@@ -104,7 +137,7 @@
         .contact-info a {
             color: #7eb8ff;
             text-decoration: none;
-            transition: color 0.25s, text-shadow 0.25s;
+            transition: all 0.3s;
             border-bottom: 1px solid rgba(126, 184, 255, 0.2);
             padding-bottom: 2px;
         }
@@ -137,10 +170,14 @@
         .table-wrap {
             overflow-x: auto;
             border-radius: 20px;
-            background: rgba(8, 16, 30, 0.6);
+            background: rgba(8, 16, 30, 0.5);
             border: 1px solid rgba(0, 180, 255, 0.08);
             padding: 4px 0;
             margin-bottom: 32px;
+            transition: border-color 0.3s;
+        }
+        .table-wrap:hover {
+            border-color: rgba(0, 200, 255, 0.2);
         }
         table {
             width: 100%;
@@ -149,7 +186,7 @@
             min-width: 1300px;
         }
         th {
-            background: rgba(0, 160, 255, 0.08);
+            background: rgba(0, 160, 255, 0.06);
             color: #7eb8ff;
             font-weight: 500;
             padding: 7px 5px;
@@ -192,7 +229,7 @@
             color: #d6e8ff;
             white-space: nowrap;
             cursor: pointer;
-            transition: color 0.2s, text-shadow 0.2s;
+            transition: all 0.2s;
         }
         .model-name:hover {
             color: #7eb8ff;
@@ -230,11 +267,6 @@
             color: #b0d4ff;
             font-weight: 500;
         }
-        .missing {
-            color: #546a7a;
-            font-style: italic;
-        }
-        /* ===== 影音符号 ===== */
         .symbol {
             font-size: 22px;
             font-weight: 700;
@@ -256,13 +288,16 @@
             margin-left: 2px;
             white-space: nowrap;
         }
-        /* ===== 图表 ===== */
         .chart-box {
-            background: rgba(8, 16, 30, 0.5);
+            background: rgba(8, 16, 30, 0.4);
             border-radius: 24px;
             border: 1px solid rgba(0, 180, 255, 0.08);
             padding: 16px 16px 8px;
             margin-top: 10px;
+            transition: border-color 0.3s;
+        }
+        .chart-box:hover {
+            border-color: rgba(0, 200, 255, 0.2);
         }
         .chart-box .chart-title {
             font-size: 16px;
@@ -276,7 +311,6 @@
             width: 100%;
             height: 280px;
         }
-        /* ===== 双栏卡片 ===== */
         .bottom-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -284,14 +318,16 @@
             margin-top: 32px;
         }
         .bottom-card {
-            background: rgba(8, 16, 30, 0.5);
+            background: rgba(8, 16, 30, 0.4);
             border-radius: 24px;
             border: 1px solid rgba(0, 180, 255, 0.08);
             padding: 20px 24px 24px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
         }
         .bottom-card:hover {
             border-color: rgba(0, 200, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 80, 200, 0.1);
         }
         .bottom-card .card-title {
             font-size: 18px;
@@ -333,7 +369,7 @@
         .bottom-card ul li a {
             color: #7eb8ff;
             text-decoration: none;
-            transition: color 0.25s, text-shadow 0.25s;
+            transition: all 0.3s;
             font-weight: 400;
         }
         .bottom-card ul li a:hover {
@@ -352,7 +388,68 @@
             line-height: 1.6;
             letter-spacing: 0.5px;
         }
-        /* ===== 模态框 ===== */
+        .software-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 10px;
+        }
+        .software-card {
+            background: rgba(8, 16, 30, 0.4);
+            border-radius: 24px;
+            border: 1px solid rgba(0, 180, 255, 0.08);
+            padding: 18px 18px 20px;
+            transition: all 0.3s;
+        }
+        .software-card:hover {
+            border-color: rgba(0, 200, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .software-card .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #d6e8ff;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 180, 255, 0.1);
+        }
+        .software-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .software-card ul li {
+            padding: 4px 0;
+            font-size: 13px;
+            color: #b0cce0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .software-card ul li:last-child {
+            border-bottom: none;
+        }
+        .software-card ul li .dot {
+            color: #4f8cff;
+            font-size: 10px;
+        }
+        .software-card ul li a {
+            color: #7eb8ff;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        .software-card ul li a:hover {
+            color: #a78bfa;
+            text-shadow: 0 0 20px rgba(167, 139, 250, 0.25);
+            text-decoration: underline;
+        }
+        .software-card ul li .no-link {
+            color: #8aa8d0;
+        }
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -361,13 +458,11 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             padding: 20px;
-            pointer-events: auto;
         }
         .modal-overlay.active {
             display: flex;
@@ -402,7 +497,7 @@
             color: #8aa8d0;
             font-size: 24px;
             cursor: pointer;
-            transition: color 0.2s, transform 0.2s;
+            transition: all 0.2s;
             line-height: 1;
         }
         .modal-card .close-btn:hover {
@@ -425,7 +520,6 @@
             border-bottom: 1px solid rgba(0, 180, 255, 0.1);
             padding-bottom: 12px;
         }
-        /* 强制两列布局，永远不变成单列 */
         .modal-card .detail-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -486,7 +580,7 @@
         .footer span {
             color: #5a7a9a;
         }
-        /* ===== 响应式 ===== */
+        /* 响应式 */
         @media (max-width: 1100px) {
             .container {
                 padding: 20px 16px;
@@ -538,9 +632,11 @@
             .modal-card .device-name {
                 font-size: 24px;
             }
-            /* 保持 detail-grid 两列，不覆盖 */
             .modal-card .av-section .av-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+            .software-grid {
+                gap: 16px;
             }
         }
         @media (max-width: 600px) {
@@ -591,7 +687,6 @@
             .modal-card .device-name {
                 font-size: 20px;
             }
-            /* 强制 detail-grid 两列，绝不变成单列 */
             .modal-card .detail-grid {
                 grid-template-columns: 1fr 1fr;
                 gap: 8px 12px;
@@ -599,10 +694,17 @@
             .modal-card .av-section .av-grid {
                 grid-template-columns: 1fr 1fr;
             }
+            .software-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- 粒子背景 -->
+    <canvas id="particles-canvas"></canvas>
 
     <div class="container" id="mainContainer">
         <div class="page-title">⚡ 电视盒子PK</div>
@@ -688,6 +790,47 @@
             </div>
         </div>
 
+        <div class="section-label">🛠️ 软件及配套</div>
+        <div class="software-grid">
+            <div class="software-card">
+                <div class="card-title">📦 系统软件</div>
+                <ul>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/pjdVnI1" target="_blank">极光盒子蒙太奇播放器</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/QN7XR2g" target="_blank">极光盒子小湃桌面设置</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/CKRodsF" target="_blank">老电视换桌面</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/qDRT80T" target="_blank">TCL灵控桌面</a></li>
+                </ul>
+            </div>
+            <div class="software-card">
+                <div class="card-title">📺 看CCTV电视</div>
+                <ul>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/dH6SD0y" target="_blank">央视频</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/lFYpAOx" target="_blank">影视仓</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/0wXSFDs" target="_blank">游戏直播</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/A5pH7Z7" target="_blank">千寻</a></li>
+                </ul>
+            </div>
+            <div class="software-card">
+                <div class="card-title">📱 实用软件</div>
+                <ul>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/T5tFLK8" target="_blank">玩童年游戏</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/5FE9QCk" target="_blank">语音遥控电视</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/KVJQeBY" target="_blank">电脑串流</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/phNXp7E" target="_blank">电视盒子性能检测</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/pXfs4nK" target="_blank">B站TV端</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/N0VfAip" target="_blank">电视听音乐</a></li>
+                </ul>
+            </div>
+            <div class="software-card">
+                <div class="card-title">🔧 实用硬件</div>
+                <ul>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/RVkGA07" target="_blank">手机投屏器</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/NCIHxVm" target="_blank">网速千兆转换</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/IYKsCnp" target="_blank">散热器</a></li>
+                </ul>
+            </div>
+        </div>
+
         <div class="footer"><span>数据仅供参考，请勿创造需求，理性购买</span></div>
     </div>
 
@@ -706,7 +849,7 @@
     </div>
 
     <script>
-        // ==================== 数据源 ====================
+        // ==================== 数据 ====================
         const devices = [
             { name: '当贝H5（新）', config: '2+64', chip: '全志H618', total: 91947, process: '28nm', cpu: 26430,
                 cores: '4核A53', gpuScore: 12689, gpuName: 'Mali-G31 MP2', mem: 35224, bandwidth: 5.4, sys: 17604,
@@ -748,33 +891,28 @@
                 '杜比视界': false, '杜比全景声': true, 'DTS:X': true }
         ];
 
-        // ==================== 通用工具 ====================
+        // ==================== 渲染函数 ====================
         const getAvCell = (deviceName, col, supported) => {
             const symbol = supported ? '✔' : '×';
             const cls = supported ? 'symbol symbol-yes' : 'symbol symbol-no';
             let note = '';
-            if (supported) {
-                if ((col === '杜比全景声' || col === 'DTS:X') &&
-                    ['当贝H5（新）', '极光3pro', '极光6se'].includes(deviceName)) {
-                    note = '需源码透传';
-                }
+            if (supported && (col === '杜比全景声' || col === 'DTS:X') &&
+                ['当贝H5（新）', '极光3pro', '极光6se'].includes(deviceName)) {
+                note = '需源码透传';
             }
             return `<span class="${cls}">${symbol}</span>` + (note ? ` <span class="note-text">(${note})</span>` : '');
         };
 
-        const findDevice = (name) => devices.find(d => d.name === name);
-        const findAv = (name) => avData.find(d => d.name === name);
+        const findDevice = name => devices.find(d => d.name === name);
+        const findAv = name => avData.find(d => d.name === name);
 
-        // ==================== 渲染主表格 ====================
+        let chart;
+
         function renderMain(data) {
             const tbody = document.getElementById('mainTbody');
-            tbody.innerHTML = data.map(d => {
-                const nameHtml =
-                    `<span class="model-name" data-name="${d.name}">${d.name}</span>${d.isTv ? ' <span class="badge badge-tv">电视</span>' : ''}`;
-                const ethHtml = d.eth === '千兆' ? `<span class="badge badge-gold">千兆</span>` : d.eth;
-                const usbHtml = d.usb !== '2.0' ? `<span class="badge badge-gold">${d.usb}</span>` : d.usb;
-                return `<tr>
-                    <td>${nameHtml}</td>
+            tbody.innerHTML = data.map(d => `
+                <tr>
+                    <td><span class="model-name" data-name="${d.name}">${d.name}</span>${d.isTv ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
                     <td>${d.config}</td>
                     <td><span class="badge badge-chip">${d.chip}</span></td>
                     <td class="score-highlight">${d.total.toLocaleString()}</td>
@@ -787,112 +925,78 @@
                     <td>${d.bandwidth ?? '—'}</td>
                     <td class="score-highlight">${(d.sys ?? '—').toLocaleString()}</td>
                     <td><span class="badge">${d.android}</span></td>
-                    <td>${ethHtml}</td>
+                    <td>${d.eth === '千兆' ? '<span class="badge badge-gold">千兆</span>' : d.eth}</td>
                     <td>${d.wifi}</td>
-                    <td>${usbHtml}</td>
-                </tr>`;
-            }).join('');
-
+                    <td>${d.usb !== '2.0' ? `<span class="badge badge-gold">${d.usb}</span>` : d.usb}</td>
+                </tr>
+            `).join('');
             document.querySelectorAll('.model-name').forEach(el => {
                 el.addEventListener('click', () => openModal(el.dataset.name));
             });
             updateChart(data);
         }
 
-        // ==================== 渲染影音表格 ====================
         function renderAv(data) {
-            const tbody = document.getElementById('avTbody');
             const headers = ['4K60Hz', '1080P120Hz', '4K120Hz', 'HDR10', 'HDR10+', '杜比视界', '杜比全景声', 'DTS:X'];
-            tbody.innerHTML = data.map(item => {
-                const nameHtml =
-                    `${item.name}${item.name === '雷鸟鹏6' ? ' <span class="badge badge-tv">电视</span>' : ''}`;
-                const cells = headers.map(key => {
-                    const supported = item[key];
-                    return `<td>${getAvCell(item.name, key, supported)}</td>`;
-                }).join('');
-                return `<tr><td>${nameHtml}</td>${cells}</tr>`;
-            }).join('');
+            document.getElementById('avTbody').innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.name}${item.name === '雷鸟鹏6' ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
+                    ${headers.map(key => `<td>${getAvCell(item.name, key, item[key])}</td>`).join('')}
+                </tr>
+            `).join('');
         }
 
-        // ==================== 图表 ====================
-        let chart;
-        const updateChart = (data) => {
+        function updateChart(data) {
             const dom = document.getElementById('chartCpuGpu');
             if (!chart) chart = echarts.init(dom);
-            const models = data.map(d => d.name);
-            const cpuData = data.map(d => d.cpu);
-            const gpuData = data.map(d => d.gpuScore);
-            const totalData = data.map(d => d.total);
             chart.setOption({
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'shadow' },
-                    formatter: params => {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: params => {
                         let res = `<strong>${params[0].axisValue}</strong><br/>`;
                         params.forEach(p => res += `${p.marker} ${p.seriesName}：${p.value.toLocaleString()}<br/>`);
                         return res;
-                    }
-                },
+                    } },
                 legend: { data: ['总分', 'CPU', 'GPU'], textStyle: { color: '#b0cce0' }, top: 0, right: 10 },
                 grid: { left: '6%', right: '4%', bottom: '15%', top: '18%', containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    data: models,
-                    axisLabel: { color: '#8aa8d0', fontSize: 11, rotate: 20, interval: 0 },
-                    axisLine: { lineStyle: { color: '#2a3a5a' } }
-                },
-                yAxis: {
-                    type: 'value',
-                    splitLine: { lineStyle: { color: '#1a2a3a', type: 'dashed' } },
-                    axisLabel: { color: '#8aa8d0', fontSize: 11 },
-                    name: '跑分',
-                    nameTextStyle: { color: '#6a8aaa', fontSize: 12 }
-                },
+                xAxis: { type: 'category', data: data.map(d => d.name), axisLabel: { color: '#8aa8d0', fontSize: 11,
+                        rotate: 20, interval: 0 }, axisLine: { lineStyle: { color: '#2a3a5a' } } },
+                yAxis: { type: 'value', splitLine: { lineStyle: { color: '#1a2a3a', type: 'dashed' } },
+                    axisLabel: { color: '#8aa8d0', fontSize: 11 }, name: '跑分', nameTextStyle: { color: '#6a8aaa',
+                        fontSize: 12 } },
                 series: [{
                     name: '总分',
                     type: 'bar',
-                    data: totalData,
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#f472b6' }, { offset: 1, color: '#be5a9a' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
-                    },
+                    data: data.map(d => d.total),
+                    itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0,
+                            color: '#f472b6' }, { offset: 1, color: '#be5a9a' }]), borderRadius: [4, 4, 0,
+                            0] },
                     barWidth: '18%',
                     barGap: '60%'
                 }, {
                     name: 'CPU',
                     type: 'bar',
-                    data: cpuData,
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#6b8cff' }, { offset: 1, color: '#4f6bc0' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
-                    },
+                    data: data.map(d => d.cpu),
+                    itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0,
+                            color: '#6b8cff' }, { offset: 1, color: '#4f6bc0' }]), borderRadius: [4, 4, 0,
+                            0] },
                     barWidth: '18%',
                     barGap: '60%'
                 }, {
                     name: 'GPU',
                     type: 'bar',
-                    data: gpuData,
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#a78bfa' }, { offset: 1, color: '#7c5cdb' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
-                    },
+                    data: data.map(d => d.gpuScore),
+                    itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0,
+                            color: '#a78bfa' }, { offset: 1, color: '#7c5cdb' }]), borderRadius: [4, 4, 0,
+                            0] },
                     barWidth: '18%',
                     barGap: '60%'
                 }]
             });
             chart.resize();
-        };
+        }
 
         // ==================== 排序 ====================
         function setupSorting() {
-            const table = document.getElementById('mainTable');
-            const headers = table.querySelectorAll('th.sortable');
+            const headers = document.querySelectorAll('#mainTable th.sortable');
             let state = {};
             headers.forEach(th => {
                 th.addEventListener('click', function() {
@@ -927,14 +1031,12 @@
         const closeBtn = document.getElementById('modalCloseBtn');
         const container = document.getElementById('mainContainer');
 
-        const openModal = (name) => {
+        function openModal(name) {
             const d = findDevice(name);
             const av = findAv(name);
             if (!d || !av) return;
             document.getElementById('modalDeviceName').textContent = d.name;
-            document.getElementById('modalDeviceTag').textContent =
-                `${d.config} ｜ ${d.chip} ｜ ${d.isTv ? '电视' : '电视盒子'}`;
-
+            document.getElementById('modalDeviceTag').textContent = `${d.config} ｜ ${d.chip} ｜ ${d.isTv ? '电视' : '电视盒子'}`;
             const fields = [
                 { label: '总分', value: d.total.toLocaleString() },
                 { label: '制程', value: d.process },
@@ -965,16 +1067,82 @@
             overlay.classList.add('active');
             container.classList.add('blur');
             document.body.style.overflow = 'hidden';
-        };
+        }
 
-        const closeModal = () => {
+        function closeModal() {
             overlay.classList.remove('active');
             container.classList.remove('blur');
             document.body.style.overflow = '';
-        };
+        }
         overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
         closeBtn.addEventListener('click', closeModal);
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        // ==================== 粒子动画 ====================
+        (function initParticles() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height, particles = [];
+            const count = 80;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.5;
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                    this.r = Math.random() * 2 + 0.5;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    if (this.x < 0 || this.x > width) this.vx *= -1;
+                    if (this.y < 0 || this.y > height) this.vy *= -1;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(126, 184, 255, 0.3)';
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+
+            function drawLines() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 150) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(126, 184, 255, ${0.08 * (1 - dist / 150)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => { p.update();
+                    p.draw(); });
+                drawLines();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
 
         // ==================== 初始化 ====================
         renderMain(devices);
