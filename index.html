@@ -425,6 +425,7 @@
             border-bottom: 1px solid rgba(0, 180, 255, 0.1);
             padding-bottom: 12px;
         }
+        /* 强制两列布局，永远不变成单列 */
         .modal-card .detail-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -537,9 +538,7 @@
             .modal-card .device-name {
                 font-size: 24px;
             }
-            .modal-card .detail-grid {
-                font-size: 13px;
-            }
+            /* 保持 detail-grid 两列，不覆盖 */
             .modal-card .av-section .av-grid {
                 grid-template-columns: 1fr 1fr;
             }
@@ -592,9 +591,10 @@
             .modal-card .device-name {
                 font-size: 20px;
             }
+            /* 强制 detail-grid 两列，绝不变成单列 */
             .modal-card .detail-grid {
-                grid-template-columns: 1fr;
-                gap: 4px;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px 12px;
             }
             .modal-card .av-section .av-grid {
                 grid-template-columns: 1fr 1fr;
