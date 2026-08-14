@@ -437,7 +437,7 @@
             background: rgba(12, 20, 35, 0.95);
             border: 1px solid rgba(0, 180, 255, 0.2);
             border-radius: 30px;
-            max-width: 500px;
+            max-width: 820px;
             width: 100%;
             padding: 30px 28px 24px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 180, 255, 0.1);
@@ -534,6 +534,21 @@
         .modal-card .av-section .av-item .value {
             font-weight: 600;
         }
+        .modal-card .radar-section {
+            margin-top: 16px;
+            border-top: 1px solid rgba(0, 180, 255, 0.1);
+            padding-top: 14px;
+        }
+        .modal-card .radar-section .radar-title {
+            font-size: 16px;
+            color: #a0c8e8;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .modal-card .radar-container {
+            width: 100%;
+            height: 450px;
+        }
         .footer {
             margin-top: 30px;
             font-size: 13px;
@@ -546,7 +561,6 @@
         .footer span {
             color: #5a7a9a;
         }
-        /* 响应式 */
         @media (max-width: 1100px) {
             .container {
                 padding: 20px 16px;
@@ -593,13 +607,16 @@
             }
             .modal-card {
                 padding: 24px 20px;
-                max-width: 440px;
+                max-width: 700px;
             }
             .modal-card .device-name {
                 font-size: 24px;
             }
             .modal-card .av-section .av-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+            .modal-card .radar-container {
+                height: 380px;
             }
             .software-grid {
                 gap: 16px;
@@ -659,6 +676,9 @@
             }
             .modal-card .av-section .av-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+            .modal-card .radar-container {
+                height: 300px;
             }
             .software-grid {
                 grid-template-columns: 1fr 1fr;
@@ -753,10 +773,9 @@
             </div>
         </div>
 
-        <!-- ===== 软件及配套（更新） ===== -->
+        <!-- ===== 软件及配套 ===== -->
         <div class="section-label">🛠️ 软件及配套</div>
         <div class="software-grid">
-            <!-- 系统软件 -->
             <div class="software-card">
                 <div class="card-title">📦 系统软件</div>
                 <ul>
@@ -764,24 +783,19 @@
                     <li><span class="dot">▸</span> <a href="https://b23.tv/QN7XR2g" target="_blank">极光盒子小湃桌面设置</a></li>
                     <li><span class="dot">▸</span> <a href="https://b23.tv/CKRodsF" target="_blank">老电视换桌面</a></li>
                     <li><span class="dot">▸</span> <a href="https://b23.tv/qDRT80T" target="_blank">TCL灵控桌面</a></li>
-                    <!-- 新增：极光盒子更新动态桌面 -->
                     <li><span class="dot">▸</span> <a href="https://b23.tv/vN1X5Sr" target="_blank">极光盒子更新动态桌面</a></li>
                 </ul>
             </div>
-            <!-- 看CCTV电视 -->
             <div class="software-card">
                 <div class="card-title">📺 看CCTV电视</div>
                 <ul>
                     <li><span class="dot">▸</span> <a href="https://b23.tv/dH6SD0y" target="_blank">央视频</a></li>
-                    <!-- 影视仓超链接已更换 -->
                     <li><span class="dot">▸</span> <a href="https://b23.tv/RLaVnxu" target="_blank">影视仓</a></li>
                     <li><span class="dot">▸</span> <a href="https://b23.tv/0wXSFDs" target="_blank">游戏直播</a></li>
                     <li><span class="dot">▸</span> <a href="https://b23.tv/A5pH7Z7" target="_blank">千寻</a></li>
-                    <!-- 新增：vsTV -->
                     <li><span class="dot">▸</span> <a href="https://b23.tv/ovjJn7A" target="_blank">vsTV</a></li>
                 </ul>
             </div>
-            <!-- 实用软件 -->
             <div class="software-card">
                 <div class="card-title">📱 实用软件</div>
                 <ul>
@@ -793,7 +807,6 @@
                     <li><span class="dot">▸</span> <a href="https://b23.tv/N0VfAip" target="_blank">电视听音乐</a></li>
                 </ul>
             </div>
-            <!-- 实用硬件 -->
             <div class="software-card">
                 <div class="card-title">🔧 实用硬件</div>
                 <ul>
@@ -817,6 +830,10 @@
             <div class="av-section">
                 <div class="av-title">🎬 影音支持</div>
                 <div class="av-grid" id="modalAvGrid"></div>
+            </div>
+            <div class="radar-section">
+                <div class="radar-title">📊 性能雷达图</div>
+                <div id="modalRadar" class="radar-container"></div>
             </div>
         </div>
     </div>
@@ -863,6 +880,25 @@
             { name: '雷鸟鹏6', '4K60Hz': true, '1080P120Hz': true, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
                 '杜比视界': false, '杜比全景声': true, 'DTS:X': true }
         ];
+
+        // ==================== 连接性评分函数 ====================
+        function getConnectivityScore(device) {
+            let wifiScore = 0;
+            const wifi = device.wifi;
+            if (wifi.includes('WiFi6')) wifiScore = 90;
+            else if (wifi.includes('WiFi5')) wifiScore = 70;
+            else if (wifi.includes('2.4G')) wifiScore = 50;
+            else wifiScore = 0;
+
+            let usbScore = 0;
+            const usb = device.usb;
+            if (usb.includes('+3.0')) usbScore = 80;
+            else if (usb.includes('+Type-C')) usbScore = 75;
+            else if (usb === '2.0') usbScore = 50;
+            else usbScore = 30;
+
+            return Math.round((wifiScore + usbScore) / 2);
+        }
 
         // ==================== 渲染函数 ====================
         const getAvCell = (deviceName, col, supported) => {
@@ -1004,6 +1040,8 @@
         const closeBtn = document.getElementById('modalCloseBtn');
         const container = document.getElementById('mainContainer');
 
+        let radarChart = null;
+
         function openModal(name) {
             const d = findDevice(name);
             const av = findAv(name);
@@ -1037,6 +1075,101 @@
                 return `<div class="av-item"><span class="label">${key}</span><span class="value" style="color:${color}">${symbol}</span></div>`;
             }).join('');
 
+            // ========== 雷达图（全新设计） ==========
+            const radarDom = document.getElementById('modalRadar');
+            if (!radarChart) {
+                radarChart = echarts.init(radarDom);
+            } else {
+                radarChart.dispose();
+                radarChart = echarts.init(radarDom);
+            }
+
+            const connectivity = getConnectivityScore(d);
+
+            const maxCpu = Math.max(...devices.map(d => d.cpu));
+            const maxGpu = Math.max(...devices.map(d => d.gpuScore));
+            const maxMem = Math.max(...devices.map(d => d.mem));
+            const maxSys = Math.max(...devices.map(d => d.sys));
+            const maxConn = 100;
+
+            const option = {
+                radar: {
+                    center: ['50%', '50%'],
+                    radius: '75%',
+                    indicator: [
+                        { name: 'CPU', max: maxCpu },
+                        { name: 'GPU', max: maxGpu },
+                        { name: '内存+硬盘', max: maxMem },
+                        { name: '系统跑分', max: maxSys },
+                        { name: '连接性', max: maxConn }
+                    ],
+                    shape: 'circle',
+                    splitNumber: 4,
+                    axisName: {
+                        color: '#ffffff',
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        textShadowBlur: 4,
+                        textShadowColor: 'rgba(0,0,0,0.8)'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,0.12)',
+                            width: 1
+                        }
+                    },
+                    splitArea: {
+                        areaStyle: {
+                            color: ['rgba(0,180,255,0.02)', 'rgba(0,180,255,0.06)']
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255,255,255,0.25)',
+                            width: 1.5
+                        }
+                    }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [{
+                        value: [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
+                        name: d.name,
+                        areaStyle: {
+                            color: 'rgba(126, 184, 255, 0.4)'
+                        },
+                        lineStyle: {
+                            color: '#7eb8ff',
+                            width: 3,
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(126, 184, 255, 0.5)'
+                        },
+                        itemStyle: {
+                            color: '#7eb8ff',
+                            borderColor: '#ffffff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: true,
+                            formatter: function(params) {
+                                return params.value;
+                            },
+                            color: '#ffffff',
+                            fontSize: 14,
+                            fontWeight: 'bold',
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            padding: [4, 8],
+                            borderRadius: 4,
+                            textShadowBlur: 4,
+                            textShadowColor: 'rgba(0,0,0,0.8)'
+                        }
+                    }]
+                }]
+            };
+
+            radarChart.setOption(option);
+            radarChart.resize();
+
             overlay.classList.add('active');
             container.classList.add('blur');
             document.body.style.overflow = 'hidden';
@@ -1047,6 +1180,7 @@
             container.classList.remove('blur');
             document.body.style.overflow = '';
         }
+
         overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
         closeBtn.addEventListener('click', closeModal);
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
