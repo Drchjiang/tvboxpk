@@ -4,9 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>电视盒子pk</title>
-    <!-- 预加载 ECharts -->
-    <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js" as="script" />
-    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js">
+    <!-- 异步加载 ECharts，不阻塞渲染 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js" defer>
     </script>
     <style>
         /* ===== 全局样式 ===== */
@@ -27,9 +26,9 @@
         .container {
             max-width: 1600px;
             width: 100%;
-            background: rgba(12, 20, 35, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(12, 20, 35, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 40px;
             padding: 32px 36px 40px;
             border: 1px solid rgba(0, 180, 255, 0.15);
@@ -157,8 +156,6 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-weight: 500;
-            position: relative;
-            overflow: hidden;
         }
         .filter-btn:hover {
             background: rgba(0, 180, 255, 0.12);
@@ -234,7 +231,6 @@
             font-weight: 400;
             vertical-align: middle;
             white-space: nowrap;
-            transition: background 0.15s;
         }
         tr:last-child td {
             border-bottom: none;
@@ -475,46 +471,63 @@
             color: #8aa8d0;
         }
 
-        /* ===== Popover 模态框（原生） ===== */
-        .popover-modal {
+        /* ===== 旧版模态框（JS控制） ===== */
+        .modal-overlay {
             position: fixed;
-            inset: 0;
-            margin: auto;
-            width: fit-content;
-            max-width: 90vw;
-            max-height: 90vh;
-            background: transparent;
-            border: none;
-            padding: 0;
-            overflow: visible;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            pointer-events: none;
-        }
-        .popover-modal:popover-open {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: auto;
-        }
-        /* 遮罩背景 */
-        .popover-modal::backdrop {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
         }
-
+        .modal-overlay.active {
+            display: flex;
+        }
         .modal-card {
             background: rgba(12, 20, 35, 0.95);
             border: 1px solid rgba(0, 180, 255, 0.2);
             border-radius: 30px;
+            max-width: 820px;
+            width: 100%;
             padding: 30px 28px 24px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 180, 255, 0.1);
             backdrop-filter: blur(4px);
+            animation: modalFadeIn 0.25s ease-out;
             max-height: 90vh;
             overflow-y: auto;
-            width: 100%;
-            min-width: 340px;
+        }
+        /* 自定义滚动条，更美观 */
+        .modal-card::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-card::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .modal-card::-webkit-scrollbar-thumb {
+            background: rgba(0, 180, 255, 0.3);
+            border-radius: 10px;
+        }
+        .modal-card::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 180, 255, 0.5);
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
         .modal-card .close-btn {
             float: right;
@@ -893,10 +906,10 @@
         <div class="footer"><span>数据仅供参考，请勿创造需求，理性购买</span></div>
     </div>
 
-    <!-- ===== Popover 模态框 ===== -->
-    <div id="deviceModal" class="popover-modal" popover="manual">
+    <!-- ===== 模态框（旧版JS控制） ===== -->
+    <div class="modal-overlay" id="modalOverlay">
         <div class="modal-card">
-            <button class="close-btn" id="modalCloseBtn" popovertarget="deviceModal" popovertargetaction="hide">✕</button>
+            <button class="close-btn" id="modalCloseBtn">✕</button>
             <div class="device-name" id="modalDeviceName"></div>
             <div class="device-tag" id="modalDeviceTag"></div>
             <div class="detail-grid" id="modalDetailGrid"></div>
@@ -1042,7 +1055,15 @@
             document.querySelectorAll('.model-name').forEach(el => {
                 el.addEventListener('click', () => openModal(el.dataset.name));
             });
-            updateChart(data);
+            // 更新图表（如果 ECharts 已加载）
+            if (typeof echarts !== 'undefined') {
+                updateChart(data);
+            } else {
+                // 如果还没加载，等待加载完成后再更新
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (typeof echarts !== 'undefined') updateChart(data);
+                });
+            }
         }
 
         function renderAv() {
@@ -1139,8 +1160,9 @@
             });
         }
 
-        // ==================== 模态框（Popover API） ====================
-        const popover = document.getElementById('deviceModal');
+        // ==================== 模态框 ====================
+        const overlay = document.getElementById('modalOverlay');
+        const closeBtn = document.getElementById('modalCloseBtn');
         const container = document.getElementById('mainContainer');
 
         function openModal(name) {
@@ -1177,98 +1199,172 @@
                 return `<div class="av-item"><span class="label">${key}</span><span class="value" style="color:${color}">${symbol}</span></div>`;
             }).join('');
 
-            // 雷达图
-            const radarDom = document.getElementById('modalRadar');
-            if (!radarChart) {
-                radarChart = echarts.init(radarDom);
-            } else {
-                radarChart.resize();
+            // 雷达图（仅当 ECharts 已加载）
+            if (typeof echarts !== 'undefined') {
+                const radarDom = document.getElementById('modalRadar');
+                if (!radarChart) {
+                    radarChart = echarts.init(radarDom);
+                } else {
+                    radarChart.resize();
+                }
+                const connectivity = getConnectivityScore(d);
+                const maxCpu = Math.max(...devices.map(d => d.cpu));
+                const maxGpu = Math.max(...devices.map(d => d.gpuScore));
+                const maxMem = Math.max(...devices.map(d => d.mem));
+                const maxSys = Math.max(...devices.map(d => d.sys));
+                const maxConn = 100;
+                const option = {
+                    radar: {
+                        center: ['50%', '50%'],
+                        radius: '75%',
+                        indicator: [
+                            { name: 'CPU', max: maxCpu },
+                            { name: 'GPU', max: maxGpu },
+                            { name: '内存+硬盘', max: maxMem },
+                            { name: '系统跑分', max: maxSys },
+                            { name: 'wifi+usb', max: maxConn }
+                        ],
+                        shape: 'circle',
+                        splitNumber: 4,
+                        axisName: {
+                            color: '#c8dbe9',
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            padding: [0, 0, 0, 0],
+                            margin: 8
+                        },
+                        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', width: 1 } },
+                        splitArea: { areaStyle: { color: ['rgba(0,180,255,0.02)', 'rgba(0,180,255,0.05)'] } },
+                        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.2)', width: 1.5 } }
+                    },
+                    series: [{
+                        type: 'radar',
+                        data: [{
+                            value: [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
+                            name: d.name,
+                            areaStyle: { color: 'rgba(126, 184, 255, 0.25)' },
+                            lineStyle: { color: '#7eb8ff', width: 2.5, shadowBlur: 6,
+                                shadowColor: 'rgba(126, 184, 255, 0.3)' },
+                            itemStyle: { color: '#7eb8ff', borderColor: '#ffffff', borderWidth: 1.5 },
+                            label: {
+                                show: true,
+                                formatter: function(params) { return params.value; },
+                                position: 'outside',
+                                color: '#ffffff',
+                                fontSize: 12,
+                                fontWeight: 'bold',
+                                backgroundColor: 'rgba(0,0,0,0.65)',
+                                padding: [2, 6],
+                                borderRadius: 3,
+                                distance: 16
+                            }
+                        }]
+                    }]
+                };
+                radarChart.setOption(option, true);
+                setTimeout(() => { radarChart.resize(); }, 100);
             }
 
-            const connectivity = getConnectivityScore(d);
-            const maxCpu = Math.max(...devices.map(d => d.cpu));
-            const maxGpu = Math.max(...devices.map(d => d.gpuScore));
-            const maxMem = Math.max(...devices.map(d => d.mem));
-            const maxSys = Math.max(...devices.map(d => d.sys));
-            const maxConn = 100;
-
-            const option = {
-                radar: {
-                    center: ['50%', '50%'],
-                    radius: '75%',
-                    indicator: [
-                        { name: 'CPU', max: maxCpu },
-                        { name: 'GPU', max: maxGpu },
-                        { name: '内存+硬盘', max: maxMem },
-                        { name: '系统跑分', max: maxSys },
-                        { name: 'wifi+usb', max: maxConn }
-                    ],
-                    shape: 'circle',
-                    splitNumber: 4,
-                    axisName: {
-                        color: '#c8dbe9',
-                        fontSize: 13,
-                        fontWeight: 'bold',
-                        padding: [0, 0, 0, 0],
-                        margin: 8
-                    },
-                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', width: 1 } },
-                    splitArea: { areaStyle: { color: ['rgba(0,180,255,0.02)', 'rgba(0,180,255,0.05)'] } },
-                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.2)', width: 1.5 } }
-                },
-                series: [{
-                    type: 'radar',
-                    data: [{
-                        value: [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
-                        name: d.name,
-                        areaStyle: { color: 'rgba(126, 184, 255, 0.25)' },
-                        lineStyle: { color: '#7eb8ff', width: 2.5, shadowBlur: 6,
-                            shadowColor: 'rgba(126, 184, 255, 0.3)' },
-                        itemStyle: { color: '#7eb8ff', borderColor: '#ffffff', borderWidth: 1.5 },
-                        label: {
-                            show: true,
-                            formatter: function(params) { return params.value; },
-                            position: 'outside',
-                            color: '#ffffff',
-                            fontSize: 12,
-                            fontWeight: 'bold',
-                            backgroundColor: 'rgba(0,0,0,0.65)',
-                            padding: [2, 6],
-                            borderRadius: 3,
-                            distance: 16
-                        }
-                    }]
-                }]
-            };
-
-            radarChart.setOption(option, true);
-            setTimeout(() => { radarChart.resize(); }, 100);
-
-            // 显示 Popover
-            popover.showPopover();
+            overlay.classList.add('active');
             container.classList.add('blur');
             document.body.style.overflow = 'hidden';
         }
 
-        // 关闭 Popover（通过按钮或点击外部）
-        document.getElementById('modalCloseBtn').addEventListener('click', function() {
-            popover.hidePopover();
+        function closeModal() {
+            overlay.classList.remove('active');
             container.classList.remove('blur');
             document.body.style.overflow = '';
-        });
+        }
 
-        // 点击 Popover 背景关闭（通过监听 Popover 的关闭事件）
-        popover.addEventListener('hide', function() {
-            container.classList.remove('blur');
-            document.body.style.overflow = '';
-        });
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+        closeBtn.addEventListener('click', closeModal);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
         // ==================== 初始化 ====================
-        renderMain();
-        renderAv();
+        // 延迟渲染图表，等待 ECharts 加载
+        function initChartWhenReady() {
+            if (typeof echarts !== 'undefined') {
+                renderMain();
+                renderAv();
+            } else {
+                // 如果还没加载，等待脚本加载完成
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (typeof echarts !== 'undefined') {
+                        renderMain();
+                        renderAv();
+                    } else {
+                        // 如果 DOMContentLoaded 后还没有，用 setInterval 检测
+                        const checkInterval = setInterval(function() {
+                            if (typeof echarts !== 'undefined') {
+                                clearInterval(checkInterval);
+                                renderMain();
+                                renderAv();
+                            }
+                        }, 100);
+                    }
+                });
+            }
+        }
+
+        // 先渲染静态表格（不含图表）
+        renderAv(); // 影音表格不依赖 ECharts
+        // 主表格渲染（也会尝试渲染图表）
+        // 但为了保证速度，先不阻塞，等 ECharts 加载后再渲染图表
+        // 先渲染主表格数据（不含图表更新）
+        function renderMainOnly() {
+            const data = getSortedData(getFilteredData());
+            const tbody = document.getElementById('mainTbody');
+            tbody.innerHTML = data.map(d => `
+                <tr>
+                    <td><span class="model-name" data-name="${d.name}">${d.name}</span>${d.isTv ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
+                    <td>${d.config}</td>
+                    <td><span class="badge badge-chip">${d.chip}</span></td>
+                    <td class="score-highlight">${d.total.toLocaleString()}</td>
+                    <td><span class="badge" style="background:rgba(0,200,255,0.04);border-color:rgba(0,200,255,0.08);">${d.process}</span></td>
+                    <td class="score-highlight">${d.cpu.toLocaleString()}</td>
+                    <td>${d.cores}</td>
+                    <td class="score-highlight">${d.gpuScore.toLocaleString()}</td>
+                    <td>${d.gpuName || '—'}</td>
+                    <td class="score-highlight">${(d.mem ?? '—').toLocaleString()}</td>
+                    <td>${d.bandwidth ?? '—'}</td>
+                    <td class="score-highlight">${(d.sys ?? '—').toLocaleString()}</td>
+                    <td><span class="badge">${d.android}</span></td>
+                    <td>${d.eth === '千兆' ? '<span class="badge badge-gold">千兆</span>' : d.eth}</td>
+                    <td>${d.wifi}</td>
+                    <td>${d.usb !== '2.0' ? `<span class="badge badge-gold">${d.usb}</span>` : d.usb}</td>
+                </tr>
+            `).join('');
+
+            document.querySelectorAll('.model-name').forEach(el => {
+                el.addEventListener('click', () => openModal(el.dataset.name));
+            });
+            // 图表更新由 ECharts 加载后触发
+        }
+
+        renderMainOnly();
+        // 设置排序和筛选（这些不依赖 ECharts）
         setupSorting();
         setupFilter();
-        window.addEventListener('resize', () => { if (chart) chart.resize(); });
+
+        // 当 ECharts 加载完成后，更新图表
+        function waitForECharts() {
+            if (typeof echarts !== 'undefined') {
+                const data = getSortedData(getFilteredData());
+                updateChart(data);
+            } else {
+                setTimeout(waitForECharts, 200);
+            }
+        }
+        waitForECharts();
+
+        // 窗口自适应
+        window.addEventListener('resize', function() {
+            if (chart) chart.resize();
+            if (radarChart) radarChart.resize();
+        });
+
+        // 模态框关闭后重置滚动位置（可选）
+        closeBtn.addEventListener('click', closeModal);
     </script>
 </body>
 </html>
