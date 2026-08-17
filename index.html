@@ -4,8 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>电视盒子pk</title>
+    <!-- 预连接 CDN -->
+    <link rel="preconnect" href="https://cdn.bootcdn.net" />
     <style>
-        /* ===== 全局样式（无任何动画/过渡） ===== */
+        /* ===== 全局样式（精简无动画） ===== */
         * {
             margin: 0;
             padding: 0;
@@ -287,13 +289,17 @@
             white-space: nowrap;
         }
 
-        /* ===== 主图表（纯CSS柱状图，保留ECharts仅用于此处） ===== */
+        /* ===== 图表容器（ECharts） ===== */
         .chart-box {
             background: rgba(8, 16, 30, 0.4);
             border-radius: 24px;
             border: 1px solid rgba(0, 180, 255, 0.08);
             padding: 16px 16px 8px;
             margin-top: 10px;
+            transition: border-color 0.3s;
+        }
+        .chart-box:hover {
+            border-color: rgba(0, 200, 255, 0.2);
         }
         .chart-box .chart-title {
             font-size: 16px;
@@ -438,7 +444,7 @@
             color: #8aa8d0;
         }
 
-        /* ===== 模态框（无动画） ===== */
+        /* ===== 模态框（无雷达图） ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -461,7 +467,7 @@
             background: rgba(12, 20, 35, 0.95);
             border: 1px solid rgba(0, 180, 255, 0.2);
             border-radius: 30px;
-            max-width: 820px;
+            max-width: 700px;
             width: 100%;
             padding: 30px 28px 24px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 180, 255, 0.1);
@@ -560,28 +566,6 @@
         .modal-card .av-section .av-item .value {
             font-weight: 600;
         }
-        .modal-card .radar-section {
-            margin-top: 16px;
-            border-top: 1px solid rgba(0, 180, 255, 0.1);
-            padding-top: 14px;
-        }
-        .modal-card .radar-section .radar-title {
-            font-size: 16px;
-            color: #a0c8e8;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        .modal-card .radar-container {
-            width: 100%;
-            height: 420px;
-            min-height: 300px;
-            background: transparent;
-        }
-        .modal-card .radar-container canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
 
         /* ===== 底部 ===== */
         .footer {
@@ -652,9 +636,6 @@
             .modal-card .av-section .av-grid {
                 grid-template-columns: 1fr 1fr;
             }
-            .modal-card .radar-container {
-                height: 360px;
-            }
             .software-grid {
                 gap: 16px;
             }
@@ -713,12 +694,12 @@
             .modal-card .av-section .av-grid {
                 grid-template-columns: 1fr 1fr;
             }
-            .modal-card .radar-container {
-                height: 280px;
-            }
             .software-grid {
                 grid-template-columns: 1fr 1fr;
                 gap: 12px;
+            }
+            .chart-container {
+                height: 220px;
             }
         }
     </style>
@@ -772,10 +753,10 @@
             </table>
         </div>
 
-        <!-- ===== 性能三维图表（保留 ECharts） ===== -->
+        <!-- ===== 性能三维图表（ECharts） ===== -->
         <div class="chart-box">
             <div class="chart-title">📊 性能三围：总分 · CPU · GPU</div>
-            <div id="chartCpuGpu" class="chart-container"></div>
+            <div class="chart-container" id="chartCpuGpu"></div>
         </div>
 
         <!-- ===== 影音支持 ===== -->
@@ -865,7 +846,7 @@
         <div class="footer"><span>数据仅供参考，请勿创造需求，理性购买</span></div>
     </div>
 
-    <!-- ===== 模态框 ===== -->
+    <!-- ===== 模态框（无雷达图） ===== -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-card">
             <button class="close-btn" id="modalCloseBtn">✕</button>
@@ -876,18 +857,29 @@
                 <div class="av-title">🎬 影音支持</div>
                 <div class="av-grid" id="modalAvGrid"></div>
             </div>
-            <div class="radar-section">
-                <div class="radar-title">📊 性能雷达图</div>
-                <!-- 替换为 Canvas -->
-                <div class="radar-container">
-                    <canvas id="modalRadarCanvas"></canvas>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- ===== ECharts 仅用于主图表 ===== -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js">
+    <!-- ===== ECharts（国内 CDN，异步加载） ===== -->
+    <script>
+        // 动态加载 ECharts，不阻塞渲染
+        function loadECharts(callback) {
+            if (typeof echarts !== 'undefined') {
+                callback();
+                return;
+            }
+            var script = document.createElement('script');
+            script.src = 'https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js';
+            script.onload = callback;
+            script.onerror = function() {
+                // 如果 bootcdn 失败，尝试备用 cdn
+                var fallback = document.createElement('script');
+                fallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js';
+                fallback.onload = callback;
+                document.head.appendChild(fallback);
+            };
+            document.head.appendChild(script);
+        }
     </script>
 
     <script>
@@ -934,24 +926,6 @@
         ];
 
         // ==================== 工具函数 ====================
-        function getConnectivityScore(device) {
-            let wifiScore = 0;
-            const wifi = device.wifi;
-            if (wifi.includes('WiFi6')) wifiScore = 90;
-            else if (wifi.includes('WiFi5')) wifiScore = 70;
-            else if (wifi.includes('2.4G')) wifiScore = 50;
-            else wifiScore = 0;
-
-            let usbScore = 0;
-            const usb = device.usb;
-            if (usb.includes('+3.0')) usbScore = 80;
-            else if (usb.includes('+Type-C')) usbScore = 75;
-            else if (usb === '2.0') usbScore = 50;
-            else usbScore = 30;
-
-            return Math.round((wifiScore + usbScore) / 2);
-        }
-
         const getAvCell = (deviceName, col, supported) => {
             const symbol = supported ? '✔' : '×';
             const cls = supported ? 'symbol symbol-yes' : 'symbol symbol-no';
@@ -966,11 +940,11 @@
         const findDevice = name => devices.find(d => d.name === name);
         const findAv = name => avData.find(d => d.name === name);
 
-        let chart;
+        let chart = null;
         let currentFilter = 'all';
         let currentSort = { col: null, dir: null };
 
-        // ==================== 渲染函数 ====================
+        // ==================== 渲染表格 ====================
         function getFilteredData() {
             if (currentFilter === 'all') return devices;
             return devices.filter(d => d.chip.includes(currentFilter));
@@ -1020,7 +994,14 @@
             document.querySelectorAll('.model-name').forEach(el => {
                 el.addEventListener('click', () => openModal(el.dataset.name));
             });
-            updateChart(data);
+
+            // 如果 ECharts 已加载，更新图表
+            if (typeof echarts !== 'undefined') {
+                updateChart(data);
+            } else {
+                // 否则标记待更新
+                window._pendingChartData = data;
+            }
         }
 
         function renderAv() {
@@ -1033,52 +1014,100 @@
             `).join('');
         }
 
+        // ==================== ECharts 图表 ====================
         function updateChart(data) {
             const dom = document.getElementById('chartCpuGpu');
-            if (!chart) chart = echarts.init(dom);
-            chart.setOption({
-                animation: false,
-                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: params => {
+            if (!dom) return;
+            if (!chart) {
+                chart = echarts.init(dom, 'dark');
+            }
+            const option = {
+                animationDuration: 500, // 动画时长500ms，流畅不卡顿
+                animationEasing: 'easeOutQuad',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    formatter: function(params) {
                         let res = `<strong>${params[0].axisValue}</strong><br/>`;
-                        params.forEach(p => res += `${p.marker} ${p.seriesName}：${p.value.toLocaleString()}<br/>`);
+                        params.forEach(p => {
+                            res += `${p.marker} ${p.seriesName}：${p.value.toLocaleString()}<br/>`;
+                        });
                         return res;
-                    } },
-                legend: { data: ['总分', 'CPU', 'GPU'], textStyle: { color: '#b0cce0' }, top: 0, right: 10 },
-                grid: { left: '6%', right: '4%', bottom: '15%', top: '18%', containLabel: true },
-                xAxis: { type: 'category', data: data.map(d => d.name), axisLabel: { color: '#8aa8d0', fontSize: 11,
-                        rotate: 20, interval: 0 }, axisLine: { lineStyle: { color: '#2a3a5a' } } },
-                yAxis: { type: 'value', splitLine: { lineStyle: { color: '#1a2a3a', type: 'dashed' } },
-                    axisLabel: { color: '#8aa8d0', fontSize: 11 }, name: '跑分', nameTextStyle: { color: '#6a8aaa',
-                        fontSize: 12 } },
+                    }
+                },
+                legend: {
+                    data: ['总分', 'CPU', 'GPU'],
+                    textStyle: { color: '#b0cce0' },
+                    top: 0,
+                    right: 10
+                },
+                grid: {
+                    left: '6%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '18%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.map(d => d.name),
+                    axisLabel: {
+                        color: '#8aa8d0',
+                        fontSize: 11,
+                        rotate: 20,
+                        interval: 0
+                    },
+                    axisLine: { lineStyle: { color: '#2a3a5a' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    splitLine: { lineStyle: { color: '#1a2a3a', type: 'dashed' } },
+                    axisLabel: { color: '#8aa8d0', fontSize: 11 },
+                    name: '跑分',
+                    nameTextStyle: { color: '#6a8aaa', fontSize: 12 }
+                },
                 series: [{
                     name: '总分',
                     type: 'bar',
                     data: data.map(d => d.total),
-                    itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0,
-                            color: '#f472b6' }, { offset: 1, color: '#be5a9a' }]), borderRadius: [4, 4, 0,
-                            0] },
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#f472b6' },
+                            { offset: 1, color: '#be5a9a' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
                     barWidth: '18%',
                     barGap: '60%'
                 }, {
                     name: 'CPU',
                     type: 'bar',
                     data: data.map(d => d.cpu),
-                    itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0,
-                            color: '#6b8cff' }, { offset: 1, color: '#4f6bc0' }]), borderRadius: [4, 4, 0,
-                            0] },
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#6b8cff' },
+                            { offset: 1, color: '#4f6bc0' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
                     barWidth: '18%',
                     barGap: '60%'
                 }, {
                     name: 'GPU',
                     type: 'bar',
                     data: data.map(d => d.gpuScore),
-                    itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0,
-                            color: '#a78bfa' }, { offset: 1, color: '#7c5cdb' }]), borderRadius: [4, 4, 0,
-                            0] },
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#a78bfa' },
+                            { offset: 1, color: '#7c5cdb' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
                     barWidth: '18%',
                     barGap: '60%'
                 }]
-            });
+            };
+            chart.setOption(option, true);
             chart.resize();
         }
 
@@ -1123,121 +1152,6 @@
         const closeBtn = document.getElementById('modalCloseBtn');
         const container = document.getElementById('mainContainer');
 
-        // ==================== 纯 Canvas 雷达图 ====================
-        function drawRadarChart(canvasId, values, maxValues, labels) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            // 适应父容器尺寸
-            const parent = canvas.parentElement;
-            const rect = parent.getBoundingClientRect();
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            canvas.style.width = rect.width + 'px';
-            canvas.style.height = rect.height + 'px';
-            ctx.scale(dpr, dpr);
-
-            const w = rect.width;
-            const h = rect.height;
-            const cx = w / 2;
-            const cy = h / 2;
-            const radius = Math.min(w, h) * 0.32;
-            const numAxes = labels.length;
-            const angleStep = (Math.PI * 2) / numAxes;
-
-            ctx.clearRect(0, 0, w, h);
-
-            // 绘制网格（4层）
-            for (let level = 1; level <= 4; level++) {
-                const r = (radius / 4) * level;
-                ctx.beginPath();
-                for (let i = 0; i < numAxes; i++) {
-                    const angle = -Math.PI / 2 + i * angleStep;
-                    const x = cx + r * Math.cos(angle);
-                    const y = cy + r * Math.sin(angle);
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.closePath();
-                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
-
-            // 绘制轴线和标签
-            for (let i = 0; i < numAxes; i++) {
-                const angle = -Math.PI / 2 + i * angleStep;
-                const x = cx + radius * Math.cos(angle);
-                const y = cy + radius * Math.sin(angle);
-
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.lineTo(x, y);
-                ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                // 标签
-                const labelRadius = radius + 22;
-                const lx = cx + labelRadius * Math.cos(angle);
-                const ly = cy + labelRadius * Math.sin(angle);
-                ctx.fillStyle = '#a0c8e8';
-                ctx.font = '13px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(labels[i], lx, ly);
-            }
-
-            // 绘制数据区域
-            const dataPoints = [];
-            ctx.beginPath();
-            for (let i = 0; i < numAxes; i++) {
-                const angle = -Math.PI / 2 + i * angleStep;
-                const r = Math.min((values[i] / maxValues[i]) * radius, radius);
-                const x = cx + r * Math.cos(angle);
-                const y = cy + r * Math.sin(angle);
-                dataPoints.push({ x, y, value: values[i] });
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(126, 184, 255, 0.25)';
-            ctx.fill();
-            ctx.strokeStyle = '#7eb8ff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // 绘制数据点和数值
-            dataPoints.forEach((p, i) => {
-                // 点
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-                ctx.fillStyle = '#7eb8ff';
-                ctx.fill();
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                // 数值
-                const angle = -Math.PI / 2 + i * angleStep;
-                let offsetX = 10 * Math.cos(angle);
-                let offsetY = 10 * Math.sin(angle);
-                if (offsetX > 0) offsetX = 12;
-                else offsetX = -12;
-                if (offsetY > 0) offsetY = 12;
-                else offsetY = -12;
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '12px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(p.value, p.x + offsetX, p.y + offsetY);
-            });
-        }
-
-        // ==================== 打开模态框 ====================
         function openModal(name) {
             const d = findDevice(name);
             const av = findAv(name);
@@ -1272,23 +1186,6 @@
                 return `<div class="av-item"><span class="label">${key}</span><span class="value" style="color:${color}">${symbol}</span></div>`;
             }).join('');
 
-            // ===== 调用 Canvas 雷达图 =====
-            const connectivity = getConnectivityScore(d);
-            const maxCpu = Math.max(...devices.map(d => d.cpu));
-            const maxGpu = Math.max(...devices.map(d => d.gpuScore));
-            const maxMem = Math.max(...devices.map(d => d.mem));
-            const maxSys = Math.max(...devices.map(d => d.sys));
-            const maxConn = 100;
-
-            // 延迟一帧确保 canvas 已渲染
-            requestAnimationFrame(() => {
-                drawRadarChart('modalRadarCanvas',
-                    [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
-                    [maxCpu, maxGpu, maxMem, maxSys, maxConn],
-                    ['CPU', 'GPU', '内存+硬盘', '系统跑分', 'wifi+usb']
-                );
-            });
-
             overlay.classList.add('active');
             container.classList.add('blur');
             document.body.style.overflow = 'hidden';
@@ -1304,31 +1201,32 @@
         closeBtn.addEventListener('click', closeModal);
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+        // ==================== 加载 ECharts 并初始化图表 ====================
+        function initChartWhenReady() {
+            if (typeof echarts !== 'undefined') {
+                const data = getSortedData(getFilteredData());
+                updateChart(data);
+                // 如果有待更新数据，更新
+                if (window._pendingChartData) {
+                    updateChart(window._pendingChartData);
+                    window._pendingChartData = null;
+                }
+            } else {
+                // 如果还没加载，等待加载完成
+                loadECharts(function() {
+                    const data = getSortedData(getFilteredData());
+                    updateChart(data);
+                    if (window._pendingChartData) {
+                        updateChart(window._pendingChartData);
+                        window._pendingChartData = null;
+                    }
+                });
+            }
+        }
+
         // ==================== 窗口自适应 ====================
         window.addEventListener('resize', function() {
             if (chart) chart.resize();
-            // 如果模态框打开，重绘雷达图
-            if (overlay.classList.contains('active')) {
-                const name = document.getElementById('modalDeviceName').textContent;
-                if (name) {
-                    const d = findDevice(name);
-                    if (d) {
-                        const connectivity = getConnectivityScore(d);
-                        const maxCpu = Math.max(...devices.map(d => d.cpu));
-                        const maxGpu = Math.max(...devices.map(d => d.gpuScore));
-                        const maxMem = Math.max(...devices.map(d => d.mem));
-                        const maxSys = Math.max(...devices.map(d => d.sys));
-                        const maxConn = 100;
-                        requestAnimationFrame(() => {
-                            drawRadarChart('modalRadarCanvas',
-                                [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
-                                [maxCpu, maxGpu, maxMem, maxSys, maxConn],
-                                ['CPU', 'GPU', '内存+硬盘', '系统跑分', 'wifi+usb']
-                            );
-                        });
-                    }
-                }
-            }
         });
 
         // ==================== 初始化 ====================
@@ -1336,6 +1234,9 @@
         renderAv();
         setupSorting();
         setupFilter();
+
+        // 延迟加载图表，不阻塞首屏
+        setTimeout(initChartWhenReady, 100);
     </script>
 </body>
 </html>
