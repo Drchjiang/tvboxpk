@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>电视盒子pk</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js">
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js">
     </script>
     <style>
-        /* ===== 精简 + 科技感（无动画） ===== */
+        /* ===== 全局样式 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -133,6 +133,38 @@
             height: 1px;
             background: linear-gradient(90deg, rgba(0, 180, 255, 0.2), transparent);
         }
+
+        /* ===== 筛选按钮 ===== */
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(0, 180, 255, 0.06);
+            border: 1px solid rgba(0, 180, 255, 0.12);
+            color: #8aa8d0;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-weight: 500;
+        }
+        .filter-btn:hover {
+            background: rgba(0, 180, 255, 0.12);
+            border-color: rgba(0, 180, 255, 0.25);
+            color: #b0d4ff;
+        }
+        .filter-btn.active {
+            background: rgba(0, 180, 255, 0.15);
+            border-color: #4f8cff;
+            color: #7eb8ff;
+            box-shadow: 0 0 20px rgba(79, 140, 255, 0.15);
+        }
+
+        /* ===== 表格 ===== */
         .table-wrap {
             overflow-x: auto;
             border-radius: 20px;
@@ -254,6 +286,8 @@
             margin-left: 2px;
             white-space: nowrap;
         }
+
+        /* ===== 图表 ===== */
         .chart-box {
             background: rgba(8, 16, 30, 0.4);
             border-radius: 24px;
@@ -277,6 +311,8 @@
             width: 100%;
             height: 280px;
         }
+
+        /* ===== 双栏卡片 ===== */
         .bottom-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -354,6 +390,8 @@
             line-height: 1.6;
             letter-spacing: 0.5px;
         }
+
+        /* ===== 软件及配套 ===== */
         .software-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -416,6 +454,8 @@
         .software-card ul li .no-link {
             color: #8aa8d0;
         }
+
+        /* ===== 模态框 ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -550,6 +590,7 @@
             height: 520px;
             min-height: 400px;
         }
+
         .footer {
             margin-top: 30px;
             font-size: 13px;
@@ -562,6 +603,8 @@
         .footer span {
             color: #5a7a9a;
         }
+
+        /* ===== 响应式 ===== */
         @media (max-width: 1100px) {
             .container {
                 padding: 20px 16px;
@@ -704,7 +747,16 @@
             </div>
         </div>
 
+        <!-- ===== 硬件配置 ===== -->
         <div class="section-label">📺 电视盒子硬件配置 <span style="font-size:14px;font-weight:400;color:#8aa8d0;margin-left:12px;">（点击可排序列：总分、制程、CPU、GPU、内存+硬盘、内存带宽、系统跑分、Wifi）</span></div>
+
+        <!-- 筛选器 -->
+        <div class="filter-group" id="filterGroup">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="晶晨">晶晨</button>
+            <button class="filter-btn" data-filter="全志">全志</button>
+        </div>
+
         <div class="table-wrap">
             <table id="mainTable">
                 <thead>
@@ -731,11 +783,13 @@
             </table>
         </div>
 
+        <!-- ===== 性能三维图表 ===== -->
         <div class="chart-box">
             <div class="chart-title">📊 性能三围：总分 · CPU · GPU</div>
             <div id="chartCpuGpu" class="chart-container"></div>
         </div>
 
+        <!-- ===== 影音支持 ===== -->
         <div class="section-label">🎬 电视盒子影音支持</div>
         <div class="table-wrap">
             <table id="avTable">
@@ -749,6 +803,7 @@
             </table>
         </div>
 
+        <!-- ===== 双栏卡片 ===== -->
         <div class="bottom-grid">
             <div class="bottom-card">
                 <div class="card-title"><span class="icon">📺</span> 电视盒子推荐</div>
@@ -882,7 +937,7 @@
                 '杜比视界': false, '杜比全景声': true, 'DTS:X': true }
         ];
 
-        // ==================== 连接性评分函数 ====================
+        // ==================== 工具函数 ====================
         function getConnectivityScore(device) {
             let wifiScore = 0;
             const wifi = device.wifi;
@@ -901,7 +956,6 @@
             return Math.round((wifiScore + usbScore) / 2);
         }
 
-        // ==================== 渲染函数 ====================
         const getAvCell = (deviceName, col, supported) => {
             const symbol = supported ? '✔' : '×';
             const cls = supported ? 'symbol symbol-yes' : 'symbol symbol-no';
@@ -917,8 +971,35 @@
         const findAv = name => avData.find(d => d.name === name);
 
         let chart;
+        let radarChart = null;
+        let currentFilter = 'all';
+        let currentSort = { col: null, dir: null };
 
-        function renderMain(data) {
+        // ==================== 渲染函数 ====================
+        function getFilteredData() {
+            if (currentFilter === 'all') return devices;
+            return devices.filter(d => d.chip.includes(currentFilter));
+        }
+
+        function getSortedData(data) {
+            if (!currentSort.col) return data;
+            const sorted = [...data];
+            const col = currentSort.col;
+            const dir = currentSort.dir;
+            sorted.sort((a, b) => {
+                let va = a[col] ?? '',
+                    vb = b[col] ?? '';
+                if (!isNaN(parseFloat(va)) && !isNaN(parseFloat(vb))) { va = parseFloat(va);
+                    vb = parseFloat(vb); }
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                return va < vb ? (dir === 'asc' ? -1 : 1) : va > vb ? (dir === 'asc' ? 1 : -1) : 0;
+            });
+            return sorted;
+        }
+
+        function renderMain() {
+            const data = getSortedData(getFilteredData());
             const tbody = document.getElementById('mainTbody');
             tbody.innerHTML = data.map(d => `
                 <tr>
@@ -940,15 +1021,16 @@
                     <td>${d.usb !== '2.0' ? `<span class="badge badge-gold">${d.usb}</span>` : d.usb}</td>
                 </tr>
             `).join('');
+
             document.querySelectorAll('.model-name').forEach(el => {
                 el.addEventListener('click', () => openModal(el.dataset.name));
             });
             updateChart(data);
         }
 
-        function renderAv(data) {
+        function renderAv() {
             const headers = ['4K60Hz', '1080P120Hz', '4K120Hz', 'HDR10', 'HDR10+', '杜比视界', '杜比全景声', 'DTS:X'];
-            document.getElementById('avTbody').innerHTML = data.map(item => `
+            document.getElementById('avTbody').innerHTML = avData.map(item => `
                 <tr>
                     <td>${item.name}${item.name === '雷鸟鹏6' ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
                     ${headers.map(key => `<td>${getAvCell(item.name, key, item[key])}</td>`).join('')}
@@ -1007,31 +1089,37 @@
         // ==================== 排序 ====================
         function setupSorting() {
             const headers = document.querySelectorAll('#mainTable th.sortable');
-            let state = {};
             headers.forEach(th => {
                 th.addEventListener('click', function() {
                     const col = this.dataset.col;
                     if (!col) return;
-                    const dir = (state[col] || 'asc') === 'asc' ? 'desc' : 'asc';
-                    state[col] = dir;
+                    if (currentSort.col === col) {
+                        currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.col = col;
+                        currentSort.dir = 'asc';
+                    }
+                    // 更新排序图标
                     headers.forEach(h => { const icon = h.querySelector('.sort-icon'); if (icon) icon.remove(); });
                     const icon = document.createElement('span');
                     icon.className = 'sort-icon';
-                    icon.textContent = dir === 'asc' ? '▲' : '▼';
+                    icon.textContent = currentSort.dir === 'asc' ? '▲' : '▼';
                     this.appendChild(icon);
+                    renderMain();
+                });
+            });
+        }
 
-                    const sorted = [...devices].sort((a, b) => {
-                        let va = a[col] ?? '',
-                            vb = b[col] ?? '';
-                        if (!isNaN(parseFloat(va)) && !isNaN(parseFloat(vb))) { va = parseFloat(va);
-                            vb = parseFloat(vb); }
-                        if (typeof va === 'string') va = va.toLowerCase();
-                        if (typeof vb === 'string') vb = vb.toLowerCase();
-                        return va < vb ? (dir === 'asc' ? -1 : 1) : va > vb ? (dir === 'asc' ? 1 : -1) : 0;
-                    });
-                    devices.length = 0;
-                    devices.push(...sorted);
-                    renderMain(devices);
+        // ==================== 筛选 ====================
+        function setupFilter() {
+            const btns = document.querySelectorAll('.filter-btn');
+            btns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    btns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    // 重置排序状态（保留排序方向，但重新渲染）
+                    renderMain();
                 });
             });
         }
@@ -1040,8 +1128,6 @@
         const overlay = document.getElementById('modalOverlay');
         const closeBtn = document.getElementById('modalCloseBtn');
         const container = document.getElementById('mainContainer');
-
-        let radarChart = null;
 
         function openModal(name) {
             const d = findDevice(name);
@@ -1076,7 +1162,7 @@
                 return `<div class="av-item"><span class="label">${key}</span><span class="value" style="color:${color}">${symbol}</span></div>`;
             }).join('');
 
-            // ========== 最终优化雷达图（字体调小） ==========
+            // ===== 雷达图 =====
             const radarDom = document.getElementById('modalRadar');
             if (!radarChart) {
                 radarChart = echarts.init(radarDom);
@@ -1085,7 +1171,6 @@
             }
 
             const connectivity = getConnectivityScore(d);
-
             const maxCpu = Math.max(...devices.map(d => d.cpu));
             const maxGpu = Math.max(...devices.map(d => d.gpuScore));
             const maxMem = Math.max(...devices.map(d => d.mem));
@@ -1107,56 +1192,30 @@
                     splitNumber: 4,
                     axisName: {
                         color: '#c8dbe9',
-                        fontSize: 13, // 调小至13px
+                        fontSize: 13,
                         fontWeight: 'bold',
                         padding: [0, 0, 0, 0],
                         margin: 8
                     },
-                    splitLine: {
-                        lineStyle: {
-                            color: 'rgba(255,255,255,0.08)',
-                            width: 1
-                        }
-                    },
-                    splitArea: {
-                        areaStyle: {
-                            color: ['rgba(0,180,255,0.02)', 'rgba(0,180,255,0.05)']
-                        }
-                    },
-                    axisLine: {
-                        lineStyle: {
-                            color: 'rgba(255,255,255,0.2)',
-                            width: 1.5
-                        }
-                    }
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', width: 1 } },
+                    splitArea: { areaStyle: { color: ['rgba(0,180,255,0.02)', 'rgba(0,180,255,0.05)'] } },
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.2)', width: 1.5 } }
                 },
                 series: [{
                     type: 'radar',
                     data: [{
                         value: [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
                         name: d.name,
-                        areaStyle: {
-                            color: 'rgba(126, 184, 255, 0.25)'
-                        },
-                        lineStyle: {
-                            color: '#7eb8ff',
-                            width: 2.5,
-                            shadowBlur: 6,
-                            shadowColor: 'rgba(126, 184, 255, 0.3)'
-                        },
-                        itemStyle: {
-                            color: '#7eb8ff',
-                            borderColor: '#ffffff',
-                            borderWidth: 1.5
-                        },
+                        areaStyle: { color: 'rgba(126, 184, 255, 0.25)' },
+                        lineStyle: { color: '#7eb8ff', width: 2.5, shadowBlur: 6,
+                            shadowColor: 'rgba(126, 184, 255, 0.3)' },
+                        itemStyle: { color: '#7eb8ff', borderColor: '#ffffff', borderWidth: 1.5 },
                         label: {
                             show: true,
-                            formatter: function(params) {
-                                return params.value;
-                            },
+                            formatter: function(params) { return params.value; },
                             position: 'outside',
                             color: '#ffffff',
-                            fontSize: 12, // 调小至12px
+                            fontSize: 12,
                             fontWeight: 'bold',
                             backgroundColor: 'rgba(0,0,0,0.65)',
                             padding: [2, 6],
@@ -1168,9 +1227,7 @@
             };
 
             radarChart.setOption(option, true);
-            setTimeout(() => {
-                radarChart.resize();
-            }, 100);
+            setTimeout(() => { radarChart.resize(); }, 100);
 
             overlay.classList.add('active');
             container.classList.add('blur');
@@ -1188,9 +1245,10 @@
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
         // ==================== 初始化 ====================
-        renderMain(devices);
-        renderAv(avData);
+        renderMain();
+        renderAv();
         setupSorting();
+        setupFilter();
         window.addEventListener('resize', () => { if (chart) chart.resize(); });
     </script>
 </body>
