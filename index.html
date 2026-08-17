@@ -4,9 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>电视盒子pk</title>
-    <!-- 异步加载 ECharts，不阻塞渲染 -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js" defer>
-    </script>
     <style>
         /* ===== 全局样式 ===== */
         * {
@@ -471,7 +468,7 @@
             color: #8aa8d0;
         }
 
-        /* ===== 旧版模态框（JS控制） ===== */
+        /* ===== 模态框（旧版JS控制） ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -924,6 +921,10 @@
         </div>
     </div>
 
+    <!-- ===== ECharts 同步加载 ===== -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js">
+    </script>
+
     <script>
         // ==================== 数据 ====================
         const devices = [
@@ -1055,15 +1056,7 @@
             document.querySelectorAll('.model-name').forEach(el => {
                 el.addEventListener('click', () => openModal(el.dataset.name));
             });
-            // 更新图表（如果 ECharts 已加载）
-            if (typeof echarts !== 'undefined') {
-                updateChart(data);
-            } else {
-                // 如果还没加载，等待加载完成后再更新
-                document.addEventListener('DOMContentLoaded', function() {
-                    if (typeof echarts !== 'undefined') updateChart(data);
-                });
-            }
+            updateChart(data);
         }
 
         function renderAv() {
@@ -1080,6 +1073,7 @@
             const dom = document.getElementById('chartCpuGpu');
             if (!chart) chart = echarts.init(dom);
             chart.setOption({
+                animation: false, // 关闭动画
                 tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: params => {
                         let res = `<strong>${params[0].axisValue}</strong><br/>`;
                         params.forEach(p => res += `${p.marker} ${p.seriesName}：${p.value.toLocaleString()}<br/>`);
@@ -1199,71 +1193,70 @@
                 return `<div class="av-item"><span class="label">${key}</span><span class="value" style="color:${color}">${symbol}</span></div>`;
             }).join('');
 
-            // 雷达图（仅当 ECharts 已加载）
-            if (typeof echarts !== 'undefined') {
-                const radarDom = document.getElementById('modalRadar');
-                if (!radarChart) {
-                    radarChart = echarts.init(radarDom);
-                } else {
-                    radarChart.resize();
-                }
-                const connectivity = getConnectivityScore(d);
-                const maxCpu = Math.max(...devices.map(d => d.cpu));
-                const maxGpu = Math.max(...devices.map(d => d.gpuScore));
-                const maxMem = Math.max(...devices.map(d => d.mem));
-                const maxSys = Math.max(...devices.map(d => d.sys));
-                const maxConn = 100;
-                const option = {
-                    radar: {
-                        center: ['50%', '50%'],
-                        radius: '75%',
-                        indicator: [
-                            { name: 'CPU', max: maxCpu },
-                            { name: 'GPU', max: maxGpu },
-                            { name: '内存+硬盘', max: maxMem },
-                            { name: '系统跑分', max: maxSys },
-                            { name: 'wifi+usb', max: maxConn }
-                        ],
-                        shape: 'circle',
-                        splitNumber: 4,
-                        axisName: {
-                            color: '#c8dbe9',
-                            fontSize: 13,
-                            fontWeight: 'bold',
-                            padding: [0, 0, 0, 0],
-                            margin: 8
-                        },
-                        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', width: 1 } },
-                        splitArea: { areaStyle: { color: ['rgba(0,180,255,0.02)', 'rgba(0,180,255,0.05)'] } },
-                        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.2)', width: 1.5 } }
-                    },
-                    series: [{
-                        type: 'radar',
-                        data: [{
-                            value: [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
-                            name: d.name,
-                            areaStyle: { color: 'rgba(126, 184, 255, 0.25)' },
-                            lineStyle: { color: '#7eb8ff', width: 2.5, shadowBlur: 6,
-                                shadowColor: 'rgba(126, 184, 255, 0.3)' },
-                            itemStyle: { color: '#7eb8ff', borderColor: '#ffffff', borderWidth: 1.5 },
-                            label: {
-                                show: true,
-                                formatter: function(params) { return params.value; },
-                                position: 'outside',
-                                color: '#ffffff',
-                                fontSize: 12,
-                                fontWeight: 'bold',
-                                backgroundColor: 'rgba(0,0,0,0.65)',
-                                padding: [2, 6],
-                                borderRadius: 3,
-                                distance: 16
-                            }
-                        }]
-                    }]
-                };
-                radarChart.setOption(option, true);
-                setTimeout(() => { radarChart.resize(); }, 100);
+            // 雷达图
+            const radarDom = document.getElementById('modalRadar');
+            if (!radarChart) {
+                radarChart = echarts.init(radarDom);
+            } else {
+                radarChart.resize();
             }
+            const connectivity = getConnectivityScore(d);
+            const maxCpu = Math.max(...devices.map(d => d.cpu));
+            const maxGpu = Math.max(...devices.map(d => d.gpuScore));
+            const maxMem = Math.max(...devices.map(d => d.mem));
+            const maxSys = Math.max(...devices.map(d => d.sys));
+            const maxConn = 100;
+            const option = {
+                animation: false, // 关闭动画
+                radar: {
+                    center: ['50%', '50%'],
+                    radius: '75%',
+                    indicator: [
+                        { name: 'CPU', max: maxCpu },
+                        { name: 'GPU', max: maxGpu },
+                        { name: '内存+硬盘', max: maxMem },
+                        { name: '系统跑分', max: maxSys },
+                        { name: 'wifi+usb', max: maxConn }
+                    ],
+                    shape: 'circle',
+                    splitNumber: 4,
+                    axisName: {
+                        color: '#c8dbe9',
+                        fontSize: 13,
+                        fontWeight: 'bold',
+                        padding: [0, 0, 0, 0],
+                        margin: 8
+                    },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', width: 1 } },
+                    splitArea: { areaStyle: { color: ['rgba(0,180,255,0.02)', 'rgba(0,180,255,0.05)'] } },
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.2)', width: 1.5 } }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [{
+                        value: [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
+                        name: d.name,
+                        areaStyle: { color: 'rgba(126, 184, 255, 0.25)' },
+                        lineStyle: { color: '#7eb8ff', width: 2.5, shadowBlur: 6,
+                            shadowColor: 'rgba(126, 184, 255, 0.3)' },
+                        itemStyle: { color: '#7eb8ff', borderColor: '#ffffff', borderWidth: 1.5 },
+                        label: {
+                            show: true,
+                            formatter: function(params) { return params.value; },
+                            position: 'outside',
+                            color: '#ffffff',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                            backgroundColor: 'rgba(0,0,0,0.65)',
+                            padding: [2, 6],
+                            borderRadius: 3,
+                            distance: 16
+                        }
+                    }]
+                }]
+            };
+            radarChart.setOption(option, true);
+            setTimeout(() => { radarChart.resize(); }, 100);
 
             overlay.classList.add('active');
             container.classList.add('blur');
@@ -1281,90 +1274,15 @@
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
         // ==================== 初始化 ====================
-        // 延迟渲染图表，等待 ECharts 加载
-        function initChartWhenReady() {
-            if (typeof echarts !== 'undefined') {
-                renderMain();
-                renderAv();
-            } else {
-                // 如果还没加载，等待脚本加载完成
-                document.addEventListener('DOMContentLoaded', function() {
-                    if (typeof echarts !== 'undefined') {
-                        renderMain();
-                        renderAv();
-                    } else {
-                        // 如果 DOMContentLoaded 后还没有，用 setInterval 检测
-                        const checkInterval = setInterval(function() {
-                            if (typeof echarts !== 'undefined') {
-                                clearInterval(checkInterval);
-                                renderMain();
-                                renderAv();
-                            }
-                        }, 100);
-                    }
-                });
-            }
-        }
-
-        // 先渲染静态表格（不含图表）
-        renderAv(); // 影音表格不依赖 ECharts
-        // 主表格渲染（也会尝试渲染图表）
-        // 但为了保证速度，先不阻塞，等 ECharts 加载后再渲染图表
-        // 先渲染主表格数据（不含图表更新）
-        function renderMainOnly() {
-            const data = getSortedData(getFilteredData());
-            const tbody = document.getElementById('mainTbody');
-            tbody.innerHTML = data.map(d => `
-                <tr>
-                    <td><span class="model-name" data-name="${d.name}">${d.name}</span>${d.isTv ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
-                    <td>${d.config}</td>
-                    <td><span class="badge badge-chip">${d.chip}</span></td>
-                    <td class="score-highlight">${d.total.toLocaleString()}</td>
-                    <td><span class="badge" style="background:rgba(0,200,255,0.04);border-color:rgba(0,200,255,0.08);">${d.process}</span></td>
-                    <td class="score-highlight">${d.cpu.toLocaleString()}</td>
-                    <td>${d.cores}</td>
-                    <td class="score-highlight">${d.gpuScore.toLocaleString()}</td>
-                    <td>${d.gpuName || '—'}</td>
-                    <td class="score-highlight">${(d.mem ?? '—').toLocaleString()}</td>
-                    <td>${d.bandwidth ?? '—'}</td>
-                    <td class="score-highlight">${(d.sys ?? '—').toLocaleString()}</td>
-                    <td><span class="badge">${d.android}</span></td>
-                    <td>${d.eth === '千兆' ? '<span class="badge badge-gold">千兆</span>' : d.eth}</td>
-                    <td>${d.wifi}</td>
-                    <td>${d.usb !== '2.0' ? `<span class="badge badge-gold">${d.usb}</span>` : d.usb}</td>
-                </tr>
-            `).join('');
-
-            document.querySelectorAll('.model-name').forEach(el => {
-                el.addEventListener('click', () => openModal(el.dataset.name));
-            });
-            // 图表更新由 ECharts 加载后触发
-        }
-
-        renderMainOnly();
-        // 设置排序和筛选（这些不依赖 ECharts）
+        renderMain();
+        renderAv();
         setupSorting();
         setupFilter();
 
-        // 当 ECharts 加载完成后，更新图表
-        function waitForECharts() {
-            if (typeof echarts !== 'undefined') {
-                const data = getSortedData(getFilteredData());
-                updateChart(data);
-            } else {
-                setTimeout(waitForECharts, 200);
-            }
-        }
-        waitForECharts();
-
-        // 窗口自适应
         window.addEventListener('resize', function() {
             if (chart) chart.resize();
             if (radarChart) radarChart.resize();
         });
-
-        // 模态框关闭后重置滚动位置（可选）
-        closeBtn.addEventListener('click', closeModal);
     </script>
 </body>
 </html>
