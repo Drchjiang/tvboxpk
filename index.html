@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>电视盒子pk</title>
     <style>
-        /* ===== 全局样式 ===== */
+        /* ===== 全局样式（无任何动画/过渡） ===== */
         * {
             margin: 0;
             padding: 0;
@@ -30,7 +30,6 @@
             padding: 32px 36px 40px;
             border: 1px solid rgba(0, 180, 255, 0.15);
             box-shadow: 0 20px 60px rgba(0, 20, 80, 0.6), inset 0 0 80px rgba(0, 180, 255, 0.03);
-            transition: filter 0.3s;
         }
         .container.blur {
             filter: blur(4px);
@@ -78,7 +77,6 @@
             color: #7eb8ff;
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.3s;
             border-bottom: 1px dashed rgba(126, 184, 255, 0.3);
             padding-bottom: 1px;
         }
@@ -103,7 +101,6 @@
         .contact-info a {
             color: #7eb8ff;
             text-decoration: none;
-            transition: color 0.3s;
             border-bottom: 1px solid rgba(126, 184, 255, 0.2);
             padding-bottom: 2px;
         }
@@ -151,7 +148,6 @@
             border-radius: 30px;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s ease;
             font-weight: 500;
         }
         .filter-btn:hover {
@@ -165,9 +161,6 @@
             color: #7eb8ff;
             box-shadow: 0 0 20px rgba(79, 140, 255, 0.15);
         }
-        .filter-btn:active {
-            transform: scale(0.95);
-        }
 
         /* ===== 表格 ===== */
         .table-wrap {
@@ -177,13 +170,9 @@
             border: 1px solid rgba(0, 180, 255, 0.08);
             padding: 4px 0;
             margin-bottom: 32px;
-            transition: border-color 0.3s;
             max-height: 600px;
             overflow-y: auto;
             position: relative;
-        }
-        .table-wrap:hover {
-            border-color: rgba(0, 200, 255, 0.2);
         }
         table {
             width: 100%;
@@ -202,7 +191,6 @@
             font-size: 12px;
             text-transform: uppercase;
             white-space: nowrap;
-            transition: background 0.2s;
             position: sticky;
             top: 0;
             z-index: 5;
@@ -240,7 +228,6 @@
             color: #d6e8ff;
             white-space: nowrap;
             cursor: pointer;
-            transition: color 0.2s;
         }
         .model-name:hover {
             color: #7eb8ff;
@@ -300,17 +287,13 @@
             white-space: nowrap;
         }
 
-        /* ===== 图表 ===== */
+        /* ===== 主图表（纯CSS柱状图，保留ECharts仅用于此处） ===== */
         .chart-box {
             background: rgba(8, 16, 30, 0.4);
             border-radius: 24px;
             border: 1px solid rgba(0, 180, 255, 0.08);
             padding: 16px 16px 8px;
             margin-top: 10px;
-            transition: border-color 0.3s;
-        }
-        .chart-box:hover {
-            border-color: rgba(0, 200, 255, 0.2);
         }
         .chart-box .chart-title {
             font-size: 16px;
@@ -337,12 +320,6 @@
             border-radius: 24px;
             border: 1px solid rgba(0, 180, 255, 0.08);
             padding: 20px 24px 24px;
-            transition: all 0.3s ease;
-        }
-        .bottom-card:hover {
-            border-color: rgba(0, 200, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 80, 200, 0.12);
         }
         .bottom-card .card-title {
             font-size: 18px;
@@ -384,7 +361,6 @@
         .bottom-card ul li a {
             color: #7eb8ff;
             text-decoration: none;
-            transition: color 0.3s;
             font-weight: 400;
         }
         .bottom-card ul li a:hover {
@@ -416,11 +392,6 @@
             border-radius: 24px;
             border: 1px solid rgba(0, 180, 255, 0.08);
             padding: 18px 18px 20px;
-            transition: all 0.3s ease;
-        }
-        .software-card:hover {
-            border-color: rgba(0, 200, 255, 0.2);
-            transform: translateY(-2px);
         }
         .software-card .card-title {
             font-size: 15px;
@@ -456,7 +427,6 @@
         .software-card ul li a {
             color: #7eb8ff;
             text-decoration: none;
-            transition: color 0.3s;
             display: inline-block;
         }
         .software-card ul li a:hover {
@@ -468,7 +438,7 @@
             color: #8aa8d0;
         }
 
-        /* ===== 模态框（旧版JS控制） ===== */
+        /* ===== 模态框（无动画） ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -496,11 +466,9 @@
             padding: 30px 28px 24px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 180, 255, 0.1);
             backdrop-filter: blur(4px);
-            animation: modalFadeIn 0.25s ease-out;
             max-height: 90vh;
             overflow-y: auto;
         }
-        /* 自定义滚动条，更美观 */
         .modal-card::-webkit-scrollbar {
             width: 6px;
         }
@@ -515,17 +483,6 @@
         .modal-card::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 180, 255, 0.5);
         }
-
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
         .modal-card .close-btn {
             float: right;
             background: none;
@@ -533,7 +490,6 @@
             color: #8aa8d0;
             font-size: 24px;
             cursor: pointer;
-            transition: color 0.2s, transform 0.2s;
             line-height: 1;
         }
         .modal-card .close-btn:hover {
@@ -619,6 +575,12 @@
             width: 100%;
             height: 420px;
             min-height: 300px;
+            background: transparent;
+        }
+        .modal-card .radar-container canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
         /* ===== 底部 ===== */
@@ -810,7 +772,7 @@
             </table>
         </div>
 
-        <!-- ===== 性能三维图表 ===== -->
+        <!-- ===== 性能三维图表（保留 ECharts） ===== -->
         <div class="chart-box">
             <div class="chart-title">📊 性能三围：总分 · CPU · GPU</div>
             <div id="chartCpuGpu" class="chart-container"></div>
@@ -903,7 +865,7 @@
         <div class="footer"><span>数据仅供参考，请勿创造需求，理性购买</span></div>
     </div>
 
-    <!-- ===== 模态框（旧版JS控制） ===== -->
+    <!-- ===== 模态框 ===== -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-card">
             <button class="close-btn" id="modalCloseBtn">✕</button>
@@ -916,12 +878,15 @@
             </div>
             <div class="radar-section">
                 <div class="radar-title">📊 性能雷达图</div>
-                <div id="modalRadar" class="radar-container"></div>
+                <!-- 替换为 Canvas -->
+                <div class="radar-container">
+                    <canvas id="modalRadarCanvas"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ===== ECharts 同步加载 ===== -->
+    <!-- ===== ECharts 仅用于主图表 ===== -->
     <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js">
     </script>
 
@@ -1002,7 +967,6 @@
         const findAv = name => avData.find(d => d.name === name);
 
         let chart;
-        let radarChart = null;
         let currentFilter = 'all';
         let currentSort = { col: null, dir: null };
 
@@ -1073,7 +1037,7 @@
             const dom = document.getElementById('chartCpuGpu');
             if (!chart) chart = echarts.init(dom);
             chart.setOption({
-                animation: false, // 关闭动画
+                animation: false,
                 tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: params => {
                         let res = `<strong>${params[0].axisValue}</strong><br/>`;
                         params.forEach(p => res += `${p.marker} ${p.seriesName}：${p.value.toLocaleString()}<br/>`);
@@ -1159,6 +1123,121 @@
         const closeBtn = document.getElementById('modalCloseBtn');
         const container = document.getElementById('mainContainer');
 
+        // ==================== 纯 Canvas 雷达图 ====================
+        function drawRadarChart(canvasId, values, maxValues, labels) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            // 适应父容器尺寸
+            const parent = canvas.parentElement;
+            const rect = parent.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.scale(dpr, dpr);
+
+            const w = rect.width;
+            const h = rect.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const radius = Math.min(w, h) * 0.32;
+            const numAxes = labels.length;
+            const angleStep = (Math.PI * 2) / numAxes;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 绘制网格（4层）
+            for (let level = 1; level <= 4; level++) {
+                const r = (radius / 4) * level;
+                ctx.beginPath();
+                for (let i = 0; i < numAxes; i++) {
+                    const angle = -Math.PI / 2 + i * angleStep;
+                    const x = cx + r * Math.cos(angle);
+                    const y = cy + r * Math.sin(angle);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // 绘制轴线和标签
+            for (let i = 0; i < numAxes; i++) {
+                const angle = -Math.PI / 2 + i * angleStep;
+                const x = cx + radius * Math.cos(angle);
+                const y = cy + radius * Math.sin(angle);
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // 标签
+                const labelRadius = radius + 22;
+                const lx = cx + labelRadius * Math.cos(angle);
+                const ly = cy + labelRadius * Math.sin(angle);
+                ctx.fillStyle = '#a0c8e8';
+                ctx.font = '13px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(labels[i], lx, ly);
+            }
+
+            // 绘制数据区域
+            const dataPoints = [];
+            ctx.beginPath();
+            for (let i = 0; i < numAxes; i++) {
+                const angle = -Math.PI / 2 + i * angleStep;
+                const r = Math.min((values[i] / maxValues[i]) * radius, radius);
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
+                dataPoints.push({ x, y, value: values[i] });
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(126, 184, 255, 0.25)';
+            ctx.fill();
+            ctx.strokeStyle = '#7eb8ff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 绘制数据点和数值
+            dataPoints.forEach((p, i) => {
+                // 点
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#7eb8ff';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // 数值
+                const angle = -Math.PI / 2 + i * angleStep;
+                let offsetX = 10 * Math.cos(angle);
+                let offsetY = 10 * Math.sin(angle);
+                if (offsetX > 0) offsetX = 12;
+                else offsetX = -12;
+                if (offsetY > 0) offsetY = 12;
+                else offsetY = -12;
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(p.value, p.x + offsetX, p.y + offsetY);
+            });
+        }
+
+        // ==================== 打开模态框 ====================
         function openModal(name) {
             const d = findDevice(name);
             const av = findAv(name);
@@ -1193,70 +1272,22 @@
                 return `<div class="av-item"><span class="label">${key}</span><span class="value" style="color:${color}">${symbol}</span></div>`;
             }).join('');
 
-            // 雷达图
-            const radarDom = document.getElementById('modalRadar');
-            if (!radarChart) {
-                radarChart = echarts.init(radarDom);
-            } else {
-                radarChart.resize();
-            }
+            // ===== 调用 Canvas 雷达图 =====
             const connectivity = getConnectivityScore(d);
             const maxCpu = Math.max(...devices.map(d => d.cpu));
             const maxGpu = Math.max(...devices.map(d => d.gpuScore));
             const maxMem = Math.max(...devices.map(d => d.mem));
             const maxSys = Math.max(...devices.map(d => d.sys));
             const maxConn = 100;
-            const option = {
-                animation: false, // 关闭动画
-                radar: {
-                    center: ['50%', '50%'],
-                    radius: '75%',
-                    indicator: [
-                        { name: 'CPU', max: maxCpu },
-                        { name: 'GPU', max: maxGpu },
-                        { name: '内存+硬盘', max: maxMem },
-                        { name: '系统跑分', max: maxSys },
-                        { name: 'wifi+usb', max: maxConn }
-                    ],
-                    shape: 'circle',
-                    splitNumber: 4,
-                    axisName: {
-                        color: '#c8dbe9',
-                        fontSize: 13,
-                        fontWeight: 'bold',
-                        padding: [0, 0, 0, 0],
-                        margin: 8
-                    },
-                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', width: 1 } },
-                    splitArea: { areaStyle: { color: ['rgba(0,180,255,0.02)', 'rgba(0,180,255,0.05)'] } },
-                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.2)', width: 1.5 } }
-                },
-                series: [{
-                    type: 'radar',
-                    data: [{
-                        value: [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
-                        name: d.name,
-                        areaStyle: { color: 'rgba(126, 184, 255, 0.25)' },
-                        lineStyle: { color: '#7eb8ff', width: 2.5, shadowBlur: 6,
-                            shadowColor: 'rgba(126, 184, 255, 0.3)' },
-                        itemStyle: { color: '#7eb8ff', borderColor: '#ffffff', borderWidth: 1.5 },
-                        label: {
-                            show: true,
-                            formatter: function(params) { return params.value; },
-                            position: 'outside',
-                            color: '#ffffff',
-                            fontSize: 12,
-                            fontWeight: 'bold',
-                            backgroundColor: 'rgba(0,0,0,0.65)',
-                            padding: [2, 6],
-                            borderRadius: 3,
-                            distance: 16
-                        }
-                    }]
-                }]
-            };
-            radarChart.setOption(option, true);
-            setTimeout(() => { radarChart.resize(); }, 100);
+
+            // 延迟一帧确保 canvas 已渲染
+            requestAnimationFrame(() => {
+                drawRadarChart('modalRadarCanvas',
+                    [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
+                    [maxCpu, maxGpu, maxMem, maxSys, maxConn],
+                    ['CPU', 'GPU', '内存+硬盘', '系统跑分', 'wifi+usb']
+                );
+            });
 
             overlay.classList.add('active');
             container.classList.add('blur');
@@ -1273,16 +1304,38 @@
         closeBtn.addEventListener('click', closeModal);
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+        // ==================== 窗口自适应 ====================
+        window.addEventListener('resize', function() {
+            if (chart) chart.resize();
+            // 如果模态框打开，重绘雷达图
+            if (overlay.classList.contains('active')) {
+                const name = document.getElementById('modalDeviceName').textContent;
+                if (name) {
+                    const d = findDevice(name);
+                    if (d) {
+                        const connectivity = getConnectivityScore(d);
+                        const maxCpu = Math.max(...devices.map(d => d.cpu));
+                        const maxGpu = Math.max(...devices.map(d => d.gpuScore));
+                        const maxMem = Math.max(...devices.map(d => d.mem));
+                        const maxSys = Math.max(...devices.map(d => d.sys));
+                        const maxConn = 100;
+                        requestAnimationFrame(() => {
+                            drawRadarChart('modalRadarCanvas',
+                                [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
+                                [maxCpu, maxGpu, maxMem, maxSys, maxConn],
+                                ['CPU', 'GPU', '内存+硬盘', '系统跑分', 'wifi+usb']
+                            );
+                        });
+                    }
+                }
+            }
+        });
+
         // ==================== 初始化 ====================
         renderMain();
         renderAv();
         setupSorting();
         setupFilter();
-
-        window.addEventListener('resize', function() {
-            if (chart) chart.resize();
-            if (radarChart) radarChart.resize();
-        });
     </script>
 </body>
 </html>
