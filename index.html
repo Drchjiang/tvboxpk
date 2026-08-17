@@ -1076,7 +1076,7 @@
                 return `<div class="av-item"><span class="label">${key}</span><span class="value" style="color:${color}">${symbol}</span></div>`;
             }).join('');
 
-            // ========== 最终优化雷达图 ==========
+            // ========== 最终优化雷达图（字体调小） ==========
             const radarDom = document.getElementById('modalRadar');
             if (!radarChart) {
                 radarChart = echarts.init(radarDom);
@@ -1101,16 +1101,16 @@
                         { name: 'GPU', max: maxGpu },
                         { name: '内存+硬盘', max: maxMem },
                         { name: '系统跑分', max: maxSys },
-                        { name: 'wifi+usb', max: maxConn } // 修改维度名称
+                        { name: 'wifi+usb', max: maxConn }
                     ],
                     shape: 'circle',
                     splitNumber: 4,
                     axisName: {
                         color: '#c8dbe9',
-                        fontSize: 16, // 稍大一点
+                        fontSize: 13, // 调小至13px
                         fontWeight: 'bold',
                         padding: [0, 0, 0, 0],
-                        margin: 10
+                        margin: 8
                     },
                     splitLine: {
                         lineStyle: {
@@ -1136,13 +1136,13 @@
                         value: [d.cpu, d.gpuScore, d.mem, d.sys, connectivity],
                         name: d.name,
                         areaStyle: {
-                            color: 'rgba(126, 184, 255, 0.3)'
+                            color: 'rgba(126, 184, 255, 0.25)'
                         },
                         lineStyle: {
                             color: '#7eb8ff',
-                            width: 3,
-                            shadowBlur: 8,
-                            shadowColor: 'rgba(126, 184, 255, 0.4)'
+                            width: 2.5,
+                            shadowBlur: 6,
+                            shadowColor: 'rgba(126, 184, 255, 0.3)'
                         },
                         itemStyle: {
                             color: '#7eb8ff',
@@ -1156,12 +1156,12 @@
                             },
                             position: 'outside',
                             color: '#ffffff',
-                            fontSize: 14, // 增大数值字体
+                            fontSize: 12, // 调小至12px
                             fontWeight: 'bold',
-                            backgroundColor: 'rgba(0,0,0,0.7)',
-                            padding: [2, 8],
-                            borderRadius: 4,
-                            distance: 20
+                            backgroundColor: 'rgba(0,0,0,0.65)',
+                            padding: [2, 6],
+                            borderRadius: 3,
+                            distance: 16
                         }
                     }]
                 }]
