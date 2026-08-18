@@ -6,7 +6,7 @@
     <title>电视盒子pk</title>
     <link rel="preconnect" href="https://cdn.bootcdn.net" />
     <style>
-        /* ===== 全局样式 ===== */
+        /* ===== 全部样式（与之前一致，不变） ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#0b0f1a; font-family:'Segoe UI','Poppins',system-ui,sans-serif; color:#c8dbe9; min-height:100vh; display:flex; justify-content:center; padding:30px 20px; }
         .container { max-width:1600px; width:100%; background:rgba(12,20,35,0.65); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:40px; padding:32px 36px 40px; border:1px solid rgba(0,180,255,0.15); box-shadow:0 20px 60px rgba(0,20,80,0.6), inset 0 0 80px rgba(0,180,255,0.03); }
@@ -254,6 +254,7 @@
     </div>
     <div id="toast"></div>
 
+    <!-- ========== 唯一 JavaScript 脚本（包含所有逻辑与备份数据） ========== -->
     <script>
         // ==================== Toast ====================
         function showToast(msg) {
@@ -264,21 +265,7 @@
             el._timer = setTimeout(() => el.classList.remove('show'), 2000);
         }
 
-        // ==================== 数据（优先从 data.json 加载，失败则用内嵌备份） ====================
-        const backupDevices = [ /* 完整备份数据，见下方 */ ];
-        const backupAv = [ /* 完整备份数据，见下方 */ ];
-
-        // 为了避免回答超长，这里使用占位，实际我会在最终代码中完整包含。
-        // 但你现在可以直接使用下面的完整版本（我已经放在一个隐藏的Gist中，但为了你方便，我把完整数据放在这里）：
-        // 实际上，为了给你完整的文件，我会把完整数据直接写在下方的脚本中。
-
-        // 因为上面备份数据被省略，我现在提供包含完整备份的 JavaScript 部分。
-        // 为了确保你能得到完整文件，我决定把整个 index.html 放到一个单独的 paste 中，但在这里，我直接把完整代码贴出来（接下来的一段是完整的）。
-        // 请复制从 <!DOCTYPE html> 到 </html> 之间的所有内容。
-    </script>
-    <!-- 由于上面省略了备份数据，下面这段脚本才是真正完整的，包含所有备份数据 -->
-    <script>
-        // 完整备份数据（当 data.json 加载失败时使用）
+        // ==================== 备份数据（当 data.json 加载失败时使用） ====================
         const backupDevices = [
             { name: '当贝H5（新）', config: '2+64', chip: '全志H618', total: 91947, process: '28nm', cpu: 26430, cores: '4核A53',
                 gpuScore: 12689, gpuName: 'Mali-G31 MP2', mem: 35224, bandwidth: 5.4, sys: 17604, android: '12', eth: '无',
@@ -320,6 +307,7 @@
                 '杜比视界': false, '杜比全景声': true, 'DTS:X': true }
         ];
 
+        // ==================== 全局状态 ====================
         let devices = [];
         let avData = [];
         let currentFilter = 'all';
@@ -365,7 +353,6 @@
                     setupSorting();
                     setupFilter();
                     setupSearch();
-                    // 图表懒加载
                     lazyLoadChart();
                 });
         }
@@ -428,7 +415,6 @@
                 el.addEventListener('click', () => openModal(el.dataset.name));
             });
 
-            // 如果图表已初始化，更新
             if (chartInitialized && chart) {
                 updateChart(data);
             }
