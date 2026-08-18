@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>电视盒子pk</title>
-    <link rel="preconnect" href="https://cdn.bootcdn.net" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <style>
-        /* ===== 全部样式（与之前一致，不变） ===== */
+        /* ===== 全局样式 ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#0b0f1a; font-family:'Segoe UI','Poppins',system-ui,sans-serif; color:#c8dbe9; min-height:100vh; display:flex; justify-content:center; padding:30px 20px; }
         .container { max-width:1600px; width:100%; background:rgba(12,20,35,0.65); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:40px; padding:32px 36px 40px; border:1px solid rgba(0,180,255,0.15); box-shadow:0 20px 60px rgba(0,20,80,0.6), inset 0 0 80px rgba(0,180,255,0.03); }
@@ -254,7 +254,7 @@
     </div>
     <div id="toast"></div>
 
-    <!-- ========== 唯一 JavaScript 脚本（包含所有逻辑与备份数据） ========== -->
+    <!-- ========== JavaScript 脚本 ========== -->
     <script>
         // ==================== Toast ====================
         function showToast(msg) {
@@ -265,7 +265,7 @@
             el._timer = setTimeout(() => el.classList.remove('show'), 2000);
         }
 
-        // ==================== 备份数据（当 data.json 加载失败时使用） ====================
+        // ==================== 备份数据 ====================
         const backupDevices = [
             { name: '当贝H5（新）', config: '2+64', chip: '全志H618', total: 91947, process: '28nm', cpu: 26430, cores: '4核A53',
                 gpuScore: 12689, gpuName: 'Mali-G31 MP2', mem: 35224, bandwidth: 5.4, sys: 17604, android: '12', eth: '无',
@@ -430,7 +430,7 @@
             `).join('');
         }
 
-        // ==================== ECharts 图表（懒加载） ====================
+        // ==================== ECharts 图表（懒加载 + 预加载） ====================
         function lazyLoadChart() {
             const chartBox = document.getElementById('chartBox');
             let loaded = false;
@@ -442,6 +442,21 @@
                 }
             }, { threshold: 0.1 });
             observer.observe(chartBox);
+
+            // 预加载：在页面空闲时提前下载 echarts（不阻塞渲染）
+            // 这样用户滚动到图表区时，库可能已经缓存好了
+            if (typeof echarts === 'undefined') {
+                // 延迟 3 秒后开始预加载（让首屏先渲染完成）
+                setTimeout(function() {
+                    if (typeof echarts === 'undefined') {
+                        const preloadScript = document.createElement('script');
+                        preloadScript.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
+                        // 不设置 onload，等真正需要时再初始化
+                        document.head.appendChild(preloadScript);
+                        console.log('ECharts 预加载已触发');
+                    }
+                }, 3000);
+            }
         }
 
         function loadEChartsAndInit() {
@@ -450,9 +465,11 @@
                 return;
             }
             const script = document.createElement('script');
-            script.src = 'https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js';
+            // 改用 jsdelivr CDN（国内访问更快，且支持自动 fallback 到其他节点）
+            script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
             script.onload = initChart;
             script.onerror = function() {
+                // 如果 jsdelivr 也失败，尝试备用 cdn（国内镜像）
                 const fallback = document.createElement('script');
                 fallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js';
                 fallback.onload = initChart;
