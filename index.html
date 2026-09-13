@@ -2,15 +2,16 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- 隐私保护：不向任何第三方（包括点击外链后的目标站点）泄露 Referrer -->
+    <meta name="referrer" content="no-referrer" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="description" content="电视盒子性能与影音支持对比，纯静态页面：无统计、无追踪、零第三方请求。" />
+    <!-- 安卓适配：浏览器地址栏颜色随主题同步 -->
+    <meta name="theme-color" content="#f0f4ff" />
     <title>电视盒子PK</title>
 
-    <!-- ===== 字体优化 ===== -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=Noto+Sans+SC:wght@300..700&display=swap" rel="stylesheet" />
-
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <!-- ===== 隐私保护：已移除 Google Fonts / CDN 等全部第三方资源请求，改用系统字体 ===== -->
 
     <!-- ===== 主题初始化（防止闪屏 + 默认浅色） ===== -->
     <script>
@@ -139,16 +140,54 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            /* 安卓适配：去除点击时的高亮色块 */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            /* 安卓适配：禁止浏览器自动放大字体；抑制下拉刷新误触 */
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            overscroll-behavior-y: contain;
+        }
+
+        /* 主题跟随：系统滚动条/表单控件颜色与页面主题一致 */
+        :root {
+            color-scheme: light;
+        }
+        [data-theme="dark"] {
+            color-scheme: dark;
+        }
+
+        :focus-visible {
+            outline: 2px solid #4f8cff;
+            outline-offset: 2px;
+        }
+
+        /* 安卓适配：减少触摸时误触文本选中 */
+        button,
+        .model-name {
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
-            font-family: 'Inter', 'Noto Sans SC', 'Segoe UI', system-ui, sans-serif;
+            /* 安卓适配：使用系统字体栈，无需联网加载，渲染更快更稳 */
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC', 'HarmonyOS Sans SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
             background: var(--bg-body);
             color: var(--text-primary);
             min-height: 100vh;
+            /* 安卓适配：dvh 修正地址栏收起/展开时的高度 */
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             padding: 30px 20px;
+            /* 安卓适配：刘海屏/手势条安全区避让 */
+            padding-top: max(30px, env(safe-area-inset-top));
+            padding-right: max(20px, env(safe-area-inset-right));
+            padding-bottom: max(30px, env(safe-area-inset-bottom));
+            padding-left: max(20px, env(safe-area-inset-left));
             transition: background 0.3s ease, color 0.3s ease;
         }
 
@@ -381,6 +420,8 @@
         /* ===== 表格 ===== */
         .table-wrap {
             overflow-x: auto;
+            /* 安卓适配：触摸惯性滚动 */
+            -webkit-overflow-scrolling: touch;
             border-radius: 20px;
             background: var(--bg-table);
             border: 1px solid var(--border-subtle);
@@ -559,12 +600,54 @@
         .chart-container {
             width: 100%;
             height: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-legend {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 4px 16px;
+            padding: 0 6px 4px;
+            font-size: 12px;
+            color: var(--text-muted);
+            /* 预留高度，避免首帧图表测量抖动 */
+            min-height: 22px;
+        }
+        .chart-legend .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .chart-legend .legend-item i {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .chart-svg-wrap {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .chart-svg-wrap svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .chart-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            font-size: 13px;
         }
 
         /* ===== Toast ===== */
         #toast {
             position: fixed;
-            top: 20px;
+            top: max(20px, env(safe-area-inset-top));
             left: 50%;
             transform: translateX(-50%) translateY(-20px);
             background: var(--toast-bg);
@@ -803,7 +886,10 @@
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(4px);
             max-height: 90vh;
+            /* 安卓适配：dvh + 触摸惯性滚动 */
+            max-height: 90dvh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             transition: background 0.3s ease, border-color 0.3s ease;
         }
         .modal-card::-webkit-scrollbar {
@@ -912,6 +998,60 @@
             transition: color 0.3s ease, border-color 0.3s ease;
         }
 
+        /* ===== 安卓/低端设备兼容：不支持 backdrop-filter 时提高底色不透明度 ===== */
+        @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+            .container {
+                background: #f7f9ff;
+            }
+            [data-theme="dark"] .container {
+                background: #0e1524;
+            }
+            th {
+                background: #ffffff;
+            }
+            [data-theme="dark"] th {
+                background: #0b1322;
+            }
+        }
+
+        /* ===== 触屏设备：加大可点击区域 ===== */
+        @media (pointer: coarse) {
+            .filter-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .theme-toggle {
+                padding: 10px 20px;
+            }
+            .modal-card .close-btn {
+                padding: 6px;
+            }
+            th.sortable {
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+        }
+
+        /* ===== 无障碍：跟随系统"减弱动态效果" ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ===== 滚动提示（仅小屏显示） ===== */
+        .scroll-hint {
+            display: none;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
         /* ===== 响应式 ===== */
         @media (max-width: 1100px) {
             .container {
@@ -979,9 +1119,19 @@
             .page-title {
                 font-size: 24px;
             }
+            .container {
+                border-radius: 20px;
+            }
+            /* 安卓手机：双栏卡片改单栏，避免过度挤压 */
             .bottom-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
                 gap: 10px;
+            }
+            .software-grid {
+                grid-template-columns: 1fr;
+            }
+            .scroll-hint {
+                display: block;
             }
             .bottom-card {
                 padding: 12px;
@@ -1037,8 +1187,10 @@
                 height: 220px;
             }
             .search-bar input {
-                font-size: 12px;
-                padding: 6px 12px;
+                /* 16px 起，避免安卓/iOS 聚焦输入框时页面自动缩放 */
+                font-size: 16px;
+                padding: 8px 14px;
+                min-width: 0;
             }
             .header-top {
                 flex-direction: column;
@@ -1066,7 +1218,7 @@
         <div class="header">
             <div class="header-sub">
                 📊 该数据来源于B站数码区UP主
-                <a href="https://space.bilibili.com/390423616/lists/7672860?type=season" target="_blank">当时只道是-寻常-</a>
+                <a href="https://space.bilibili.com/390423616/lists/7672860?type=season" target="_blank" rel="noopener noreferrer">当时只道是-寻常-</a>
                 <span class="highlight">❤️</span>
             </div>
             <div class="contact-info">
@@ -1085,6 +1237,7 @@
             <button class="filter-btn" data-filter="晶晨">晶晨</button>
             <button class="filter-btn" data-filter="全志">全志</button>
         </div>
+        <div class="scroll-hint">⇄ 左右滑动查看更多参数</div>
         <div class="table-wrap">
             <table id="mainTable">
                 <thead>
@@ -1119,6 +1272,7 @@
 
         <!-- ===== 影音支持 ===== -->
         <div class="section-label">🎬 电视盒子影音支持</div>
+        <div class="scroll-hint">⇄ 左右滑动查看更多规格</div>
         <div class="table-wrap">
             <table id="avTable">
                 <thead>
@@ -1136,23 +1290,23 @@
             <div class="bottom-card">
                 <div class="card-title"><span class="icon">📺</span> 电视盒子推荐</div>
                 <ul>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/SfNFnbZ" target="_blank">电视盒子推荐2026.06</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/XZt9qym" target="_blank">电视盒子推荐2026.02</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/vyIcrMy" target="_blank">电视盒子推荐2025.12</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/SfNFnbZ" target="_blank" rel="noopener noreferrer">电视盒子推荐2026.06</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/XZt9qym" target="_blank" rel="noopener noreferrer">电视盒子推荐2026.02</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/vyIcrMy" target="_blank" rel="noopener noreferrer">电视盒子推荐2025.12</a></li>
                 </ul>
             </div>
             <div class="bottom-card">
                 <div class="card-title"><span class="icon">🛒</span> 自购评测</div>
                 <ul>
                     <li><span class="dot">▸</span> <span class="brand-label">小米</span>
-                        <a href="https://b23.tv/fHUECSt" target="_blank">小米盒子5</a>
-                        <a href="https://b23.tv/cxhyPkD" target="_blank">小米盒子4s max</a></li>
+                        <a href="https://b23.tv/fHUECSt" target="_blank" rel="noopener noreferrer">小米盒子5</a>
+                        <a href="https://b23.tv/cxhyPkD" target="_blank" rel="noopener noreferrer">小米盒子4s max</a></li>
                     <li><span class="dot">▸</span> <span class="brand-label">腾讯极光</span>
-                        <a href="https://b23.tv/4DGN5vE" target="_blank">极光盒子7air</a>
-                        <a href="https://b23.tv/w7PyRMi" target="_blank">极光盒子3pro</a>
-                        <a href="https://b23.tv/2xjSmiN" target="_blank">极光盒子6se</a></li>
+                        <a href="https://b23.tv/4DGN5vE" target="_blank" rel="noopener noreferrer">极光盒子7air</a>
+                        <a href="https://b23.tv/w7PyRMi" target="_blank" rel="noopener noreferrer">极光盒子3pro</a>
+                        <a href="https://b23.tv/2xjSmiN" target="_blank" rel="noopener noreferrer">极光盒子6se</a></li>
                     <li><span class="dot">▸</span> <span class="brand-label">当贝</span>
-                        <a href="https://b23.tv/7Hf2cyW" target="_blank">当贝盒子5（新）</a></li>
+                        <a href="https://b23.tv/7Hf2cyW" target="_blank" rel="noopener noreferrer">当贝盒子5（新）</a></li>
                 </ul>
             </div>
         </div>
@@ -1163,45 +1317,48 @@
             <div class="software-card">
                 <div class="card-title">📦 系统软件</div>
                 <ul>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/pjdVnI1" target="_blank">极光盒子蒙太奇播放器</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/QN7XR2g" target="_blank">极光盒子小湃桌面设置</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/CKRodsF" target="_blank">老电视换桌面</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/qDRT80T" target="_blank">TCL灵控桌面</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/vN1X5Sr" target="_blank">极光盒子更新动态桌面</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/pjdVnI1" target="_blank" rel="noopener noreferrer">极光盒子蒙太奇播放器</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/QN7XR2g" target="_blank" rel="noopener noreferrer">极光盒子小湃桌面设置</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/CKRodsF" target="_blank" rel="noopener noreferrer">老电视换桌面</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/qDRT80T" target="_blank" rel="noopener noreferrer">TCL灵控桌面</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/vN1X5Sr" target="_blank" rel="noopener noreferrer">极光盒子更新动态桌面</a></li>
                 </ul>
             </div>
             <div class="software-card">
                 <div class="card-title">📺 看CCTV电视</div>
                 <ul>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/dH6SD0y" target="_blank">央视频</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/RLaVnxu" target="_blank">影视仓</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/0wXSFDs" target="_blank">游戏直播</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/A5pH7Z7" target="_blank">千寻</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/ovjJn7A" target="_blank">vsTV</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/dH6SD0y" target="_blank" rel="noopener noreferrer">央视频</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/RLaVnxu" target="_blank" rel="noopener noreferrer">影视仓</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/0wXSFDs" target="_blank" rel="noopener noreferrer">游戏直播</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/A5pH7Z7" target="_blank" rel="noopener noreferrer">千寻</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/ovjJn7A" target="_blank" rel="noopener noreferrer">vsTV</a></li>
                 </ul>
             </div>
             <div class="software-card">
                 <div class="card-title">📱 实用软件</div>
                 <ul>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/T5tFLK8" target="_blank">玩童年游戏</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/5FE9QCk" target="_blank">语音遥控电视</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/KVJQeBY" target="_blank">电脑串流</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/phNXp7E" target="_blank">电视盒子性能检测</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/pXfs4nK" target="_blank">B站TV端</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/N0VfAip" target="_blank">电视听音乐</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/T5tFLK8" target="_blank" rel="noopener noreferrer">玩童年游戏</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/5FE9QCk" target="_blank" rel="noopener noreferrer">语音遥控电视</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/KVJQeBY" target="_blank" rel="noopener noreferrer">电脑串流</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/phNXp7E" target="_blank" rel="noopener noreferrer">电视盒子性能检测</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/pXfs4nK" target="_blank" rel="noopener noreferrer">B站TV端</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/N0VfAip" target="_blank" rel="noopener noreferrer">电视听音乐</a></li>
                 </ul>
             </div>
             <div class="software-card">
                 <div class="card-title">🔧 实用硬件</div>
                 <ul>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/RVkGA07" target="_blank">手机投屏器</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/NCIHxVm" target="_blank">网速千兆转换</a></li>
-                    <li><span class="dot">▸</span> <a href="https://b23.tv/IYKsCnp" target="_blank">散热器</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/RVkGA07" target="_blank" rel="noopener noreferrer">手机投屏器</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/NCIHxVm" target="_blank" rel="noopener noreferrer">网速千兆转换</a></li>
+                    <li><span class="dot">▸</span> <a href="https://b23.tv/IYKsCnp" target="_blank" rel="noopener noreferrer">散热器</a></li>
                 </ul>
             </div>
         </div>
 
-        <div class="footer"><span>数据仅供参考，请勿创造需求，理性购买</span></div>
+        <div class="footer">
+            <span>数据仅供参考，请勿创造需求，理性购买</span><br>
+            <span style="font-size:12px;">🔒 本页面为纯静态页面：不收集任何数据、无统计/追踪脚本、零第三方资源请求，主题偏好仅保存在您的浏览器本地</span>
+        </div>
     </div>
 
     <!-- ===== 模态框 ===== -->
@@ -1233,10 +1390,11 @@
                 html.setAttribute('data-theme', theme);
                 try { localStorage.setItem('tvboxpk-theme', theme); } catch (_) {}
                 label.textContent = theme === 'dark' ? '深色' : '浅色';
-                // 更新 ECharts 主题
-                if (chart && chartInitialized) {
-                    updateChart(getSortedData(getFilteredData()));
-                }
+                // 安卓适配：同步浏览器地址栏颜色
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b0f1a' : '#f0f4ff');
+                // 更新图表主题
+                refreshChart();
             }
 
             function toggleTheme() {
@@ -1255,6 +1413,8 @@
             const initial = saved || 'light';
             html.setAttribute('data-theme', initial);
             label.textContent = initial === 'dark' ? '深色' : '浅色';
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', initial === 'dark' ? '#0b0f1a' : '#f0f4ff');
         })();
 
 
@@ -1308,7 +1468,7 @@
                 '杜比视界': false, '杜比全景声': true, 'DTS:X': true },
             { name: '极光7air', '4K60Hz': true, '1080P120Hz': false, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
                 '杜比视界': true, '杜比全景声': true, 'DTS:X': false },
-            { name: '小米5', '4K60Hz': true, '1080P120Hz': false, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
+            { name: '小米5', '4K60Hz': true, '1080P120Hz': true, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
                 '杜比视界': true, '杜比全景声': true, 'DTS:X': true },
             { name: '雷鸟鹏6', '4K60Hz': true, '1080P120Hz': true, '4K120Hz': false, 'HDR10': true, 'HDR10+': true,
                 '杜比视界': false, '杜比全景声': true, 'DTS:X': true }
@@ -1321,7 +1481,6 @@
         let currentFilter = 'all';
         let currentSort = { col: null, dir: null };
         let searchQuery = '';
-        let chart = null;
         let chartInitialized = false;
 
 
@@ -1339,6 +1498,8 @@
 
         const findDevice = name => devices.find(d => d.name === name);
         const findAv = name => avData.find(d => d.name === name);
+        // 隐私保护加固：所有动态插入 HTML 的文本先转义，防止注入
+        const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
 
 
         // ==================== 数据加载 ====================
@@ -1363,7 +1524,7 @@
                     setupSorting();
                     setupFilter();
                     setupSearch();
-                    lazyLoadChart();
+                    initChart();
                 });
         }
 
@@ -1403,199 +1564,154 @@
             const tbody = document.getElementById('mainTbody');
             tbody.innerHTML = data.map(d => `
                 <tr>
-                    <td><span class="model-name" data-name="${d.name}">${d.name}</span>${d.isTv ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
-                    <td>${d.config}</td>
-                    <td><span class="badge badge-chip">${d.chip}</span></td>
+                    <td><span class="model-name" tabindex="0" role="button" data-name="${escapeHtml(d.name)}">${escapeHtml(d.name)}</span>${d.isTv ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
+                    <td>${escapeHtml(d.config)}</td>
+                    <td><span class="badge badge-chip">${escapeHtml(d.chip)}</span></td>
                     <td class="score-highlight">${d.total.toLocaleString()}</td>
-                    <td><span class="badge" style="background:var(--badge-bg);border-color:var(--badge-border);color:var(--badge-text);">${d.process}</span></td>
+                    <td><span class="badge" style="background:var(--badge-bg);border-color:var(--badge-border);color:var(--badge-text);">${escapeHtml(d.process)}</span></td>
                     <td class="score-highlight">${d.cpu.toLocaleString()}</td>
-                    <td>${d.cores}</td>
+                    <td>${escapeHtml(d.cores)}</td>
                     <td class="score-highlight">${d.gpuScore.toLocaleString()}</td>
-                    <td>${d.gpuName || '—'}</td>
+                    <td>${escapeHtml(d.gpuName || '—')}</td>
                     <td class="score-highlight">${(d.mem ?? '—').toLocaleString()}</td>
-                    <td>${d.bandwidth ?? '—'}</td>
+                    <td>${escapeHtml(d.bandwidth ?? '—')}</td>
                     <td class="score-highlight">${(d.sys ?? '—').toLocaleString()}</td>
-                    <td><span class="badge">${d.android}</span></td>
-                    <td>${d.eth === '千兆' ? '<span class="badge badge-gold">千兆</span>' : d.eth}</td>
-                    <td>${d.wifi}</td>
-                    <td>${d.usb !== '2.0' ? `<span class="badge badge-gold">${d.usb}</span>` : d.usb}</td>
+                    <td><span class="badge">${escapeHtml(d.android)}</span></td>
+                    <td>${d.eth === '千兆' ? '<span class="badge badge-gold">千兆</span>' : escapeHtml(d.eth)}</td>
+                    <td>${escapeHtml(d.wifi)}</td>
+                    <td>${d.usb !== '2.0' ? `<span class="badge badge-gold">${escapeHtml(d.usb)}</span>` : escapeHtml(d.usb)}</td>
                 </tr>
             `).join('');
 
             document.querySelectorAll('.model-name').forEach(el => {
-                el.addEventListener('click', () => openModal(el.dataset.name));
+                const open = () => openModal(el.dataset.name);
+                el.addEventListener('click', open);
+                // 安卓电视盒子：遥控器方向键聚焦 + 确认键打开详情
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+                });
             });
 
-            if (chartInitialized && chart) {
-                updateChart(data);
-            }
+            refreshChart();
         }
 
         function renderAv() {
             const headers = ['4K60Hz', '1080P120Hz', '4K120Hz', 'HDR10', 'HDR10+', '杜比视界', '杜比全景声', 'DTS:X'];
             document.getElementById('avTbody').innerHTML = avData.map(item => `
                 <tr>
-                    <td>${item.name}${item.name === '雷鸟鹏6' ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
+                    <td>${escapeHtml(item.name)}${item.name === '雷鸟鹏6' ? ' <span class="badge badge-tv">电视</span>' : ''}</td>
                     ${headers.map(key => `<td>${getAvCell(item.name, key, item[key])}</td>`).join('')}
                 </tr>
             `).join('');
         }
 
 
-        // ==================== ECharts 图表 ====================
-        function lazyLoadChart() {
-            const chartBox = document.getElementById('chartBox');
-            let loaded = false;
-            const observer = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting && !loaded) {
-                    loaded = true;
-                    loadEChartsAndInit();
-                    observer.disconnect();
-                }
-            }, { threshold: 0.1 });
-            observer.observe(chartBox);
-
-            if (typeof echarts === 'undefined') {
-                setTimeout(function() {
-                    if (typeof echarts === 'undefined') {
-                        const preloadScript = document.createElement('script');
-                        preloadScript.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
-                        document.head.appendChild(preloadScript);
-                    }
-                }, 3000);
+        // ==================== 原生 SVG 图表（隐私保护：无第三方库、零外部请求） ====================
+        function refreshChart() {
+            if (chartInitialized) {
+                renderChart(getSortedData(getFilteredData()));
             }
-        }
-
-        function loadEChartsAndInit() {
-            if (typeof echarts !== 'undefined') {
-                initChart();
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
-            script.onload = initChart;
-            script.onerror = function() {
-                const fallback = document.createElement('script');
-                fallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js';
-                fallback.onload = initChart;
-                document.head.appendChild(fallback);
-            };
-            document.head.appendChild(script);
         }
 
         function initChart() {
             const dom = document.getElementById('chartCpuGpu');
-            if (!dom) return;
-
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            const textColor = isDark ? '#b0cce0' : '#4a5568';
-            const axisColor = isDark ? '#2a3a5a' : '#e2e8f0';
-            const splitColor = isDark ? '#1a2a3a' : '#edf2f7';
-
-            chart = echarts.init(dom, null, { renderer: 'canvas' });
+            if (!dom || chartInitialized) return;
+            dom.innerHTML = '<div class="chart-legend" id="chartLegend"></div><div class="chart-svg-wrap" id="chartSvgWrap"></div>';
             chartInitialized = true;
-            const data = getSortedData(getFilteredData());
-            updateChart(data);
-            window.addEventListener('resize', () => { if (chart) chart.resize(); });
+
+            // 触屏友好：轻点柱条即可查看数值
+            document.getElementById('chartSvgWrap').addEventListener('click', e => {
+                const rect = e.target.closest && e.target.closest('rect');
+                const title = rect && rect.querySelector('title');
+                if (title) showToast(title.textContent);
+            });
+
+            let resizeTimer;
+            const onResize = () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(refreshChart, 150);
+            };
+            window.addEventListener('resize', onResize);
+            window.addEventListener('orientationchange', onResize);
+
+            refreshChart();
         }
 
-        function updateChart(data) {
-            if (!chart || !chartInitialized) return;
+        function fmtWan(v) {
+            if (v >= 10000) {
+                return (Math.round(v / 100) / 100) + '万';
+            }
+            return String(v);
+        }
+
+        function renderChart(data) {
+            const wrap = document.getElementById('chartSvgWrap');
+            if (!wrap) return;
+            if (!data.length) {
+                wrap.innerHTML = '<div class="chart-empty">暂无数据</div>';
+                return;
+            }
 
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             const textColor = isDark ? '#b0cce0' : '#4a5568';
-            const axisColor = isDark ? '#2a3a5a' : '#e2e8f0';
-            const splitColor = isDark ? '#1a2a3a' : '#edf2f7';
+            const gridColor = isDark ? '#1a2a3a' : '#edf2f7';
 
-            const option = {
-                animationDuration: 500,
-                animationEasing: 'easeOutQuad',
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'shadow' },
-                    formatter: function(params) {
-                        let res = `<strong>${params[0].axisValue}</strong><br/>`;
-                        params.forEach(p => {
-                            res += `${p.marker} ${p.seriesName}：${p.value.toLocaleString()}<br/>`;
-                        });
-                        return res;
-                    }
-                },
-                legend: {
-                    data: ['总分', 'CPU', 'GPU'],
-                    textStyle: { color: textColor },
-                    top: 0,
-                    right: 10
-                },
-                grid: {
-                    left: '6%',
-                    right: '4%',
-                    bottom: '15%',
-                    top: '18%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'category',
-                    data: data.map(d => d.name),
-                    axisLabel: {
-                        color: textColor,
-                        fontSize: 11,
-                        rotate: 20,
-                        interval: 0
-                    },
-                    axisLine: { lineStyle: { color: axisColor } }
-                },
-                yAxis: {
-                    type: 'value',
-                    splitLine: { lineStyle: { color: splitColor, type: 'dashed' } },
-                    axisLabel: { color: textColor, fontSize: 11 },
-                    name: '跑分',
-                    nameTextStyle: { color: isDark ? '#6a8aaa' : '#718096', fontSize: 12 }
-                },
-                series: [{
-                    name: '总分',
-                    type: 'bar',
-                    data: data.map(d => d.total),
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#f472b6' },
-                            { offset: 1, color: '#be5a9a' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
-                    },
-                    barWidth: '18%',
-                    barGap: '60%'
-                }, {
-                    name: 'CPU',
-                    type: 'bar',
-                    data: data.map(d => d.cpu),
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#6b8cff' },
-                            { offset: 1, color: '#4f6bc0' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
-                    },
-                    barWidth: '18%',
-                    barGap: '60%'
-                }, {
-                    name: 'GPU',
-                    type: 'bar',
-                    data: data.map(d => d.gpuScore),
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#a78bfa' },
-                            { offset: 1, color: '#7c5cdb' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
-                    },
-                    barWidth: '18%',
-                    barGap: '60%'
-                }]
-            };
-            chart.setOption(option, true);
-            chart.resize();
+            const W = Math.max(wrap.clientWidth || 0, 320);
+            const H = Math.max(wrap.clientHeight || 0, 160);
+            const pad = { top: 26, right: 14, bottom: 46, left: 44 };
+            const iw = W - pad.left - pad.right;
+            const ih = H - pad.top - pad.bottom;
+
+            const groups = ['总分', 'CPU', 'GPU'];
+            const colors = [
+                ['#f472b6', '#be5a9a'],
+                ['#6b8cff', '#4f6bc0'],
+                ['#a78bfa', '#7c5cdb']
+            ];
+
+            const maxVal = Math.max(1, ...data.map(d => Math.max(d.total, d.cpu, d.gpuScore)));
+            const step = Math.pow(10, Math.floor(Math.log10(maxVal)));
+            const niceMax = Math.ceil(maxVal / step) * step;
+
+            let defs = '', bars = '', xLabels = '', grid = '';
+            colors.forEach((c, gi) => {
+                defs += `<linearGradient id="g${gi}" x1="0" y1="0" x2="0" y2="1">` +
+                    `<stop offset="0" stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`;
+            });
+
+            const yCount = 4;
+            for (let i = 0; i <= yCount; i++) {
+                const v = niceMax * i / yCount;
+                const y = pad.top + ih - ih * i / yCount;
+                grid += `<line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${W - pad.right}" y2="${y.toFixed(1)}" stroke="${gridColor}" stroke-width="1"${i === 0 ? '' : ' stroke-dasharray="4 4"'}/>`;
+                grid += `<text x="${pad.left - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="${textColor}">${fmtWan(v)}</text>`;
+            }
+
+            const slot = iw / data.length;
+            const barW = Math.min(18, Math.max(6, slot * 0.16));
+            const groupW = barW * 3 + 6;
+
+            data.forEach((d, i) => {
+                const cx = pad.left + slot * i + slot / 2;
+                const x0 = cx - groupW / 2;
+                const vals = [d.total, d.cpu, d.gpuScore];
+                vals.forEach((v, gi) => {
+                    const bh = Math.max(1, ih * v / niceMax);
+                    const bx = x0 + gi * (barW + 3);
+                    const by = pad.top + ih - bh;
+                    bars += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="url(#g${gi})"><title>${escapeHtml(d.name)} · ${groups[gi]}：${v.toLocaleString()}</title></rect>`;
+                });
+                const ly = pad.top + ih + 14;
+                xLabels += `<text x="${cx.toFixed(1)}" y="${ly}" text-anchor="end" font-size="10" fill="${textColor}" transform="rotate(-20 ${cx.toFixed(1)} ${ly})">${escapeHtml(d.name)}</text>`;
+            });
+
+            document.getElementById('chartLegend').innerHTML = groups.map((g, i) =>
+                `<span class="legend-item"><i style="background:${colors[i][0]}"></i>${g}</span>`
+            ).join('');
+
+            wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="总分、CPU、GPU 性能对比柱状图"><defs>${defs}</defs>${grid}${bars}${xLabels}</svg>`;
         }
+
 
 
         // ==================== 排序 ====================

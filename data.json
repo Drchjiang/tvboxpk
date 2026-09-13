@@ -193,7 +193,7 @@
     {
       "name": "小米5",
       "4K60Hz": true,
-      "1080P120Hz": false,
+      "1080P120Hz": true,
       "4K120Hz": false,
       "HDR10": true,
       "HDR10+": true,
