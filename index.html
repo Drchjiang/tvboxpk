@@ -17,7 +17,7 @@
 --bg-table: rgba(255,255,255,0.30);
 --bg-card: rgba(255,255,255,0.30);
 --bg-soft: rgba(79,140,255,0.04);
---text-primary: #1a202c;--text-secondary: #2d3748;--text-muted: #718096;
+--text-primary: #1a202c;--text-secondary: #2d3748;--text-muted: #5f6c80;
 --text-table-header: #4a5568;--border-light: rgba(255,255,255,0.7);
 --border-subtle: rgba(0,0,0,0.05);
 --shadow-container: 0 20px 60px rgba(0,20,60,0.08);
@@ -133,17 +133,23 @@ tr:hover td{background:rgba(79,140,255,0.03)}
 .symbol{font-size:20px;font-weight:700;line-height:1.4}
 .symbol-yes{color:#34d399}
 .symbol-no{color:#f87171}
+.symbol-unknown{color:var(--text-muted);font-size:16px}
 .chart-box{background:var(--chart-bg);border-radius:22px;border:1px solid var(--border-subtle);padding:14px 16px 8px;margin-top:8px;transition:all 0.4s}
 .chart-box:hover{border-color:rgba(79,140,255,0.20);box-shadow:0 0 30px var(--glow-primary)}
 .chart-title{font-size:15px;font-weight:500;color:var(--text-secondary);margin-bottom:4px}
-.chart-container{width:100%;height:260px;display:flex;flex-direction:column}
+.chart-container{width:100%;height:340px;display:flex;flex-direction:column}
 .chart-legend{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--text-muted);min-height:20px}
-.chart-svg-wrap{flex:1;min-height:0;overflow:hidden}
+.chart-legend .legend-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.chart-legend .legend-item i{display:inline-block;width:10px;height:10px;border-radius:3px;flex:none}
+.chart-scroll-hint{display:none;font-size:11px;font-weight:400;color:var(--text-muted);margin-left:8px}
+.chart-svg-wrap{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.chart-svg-wrap svg{display:block}
+.chart-svg-wrap .x-label{font-size:11px}
 .chart-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:13px}
 #toast{position:fixed;top:max(20px,env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-20px);background:var(--toast-bg);color:#fff;padding:10px 28px;border-radius:30px;font-size:14px;font-weight:500;z-index:2000;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;backdrop-filter:blur(4px);box-shadow:0 8px 30px rgba(0,0,0,0.15)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px;content-visibility:auto;contain-intrinsic-size:240px}
-.bottom-card{background:var(--bg-card);border-radius:22px;border:1px solid var(--border-subtle);padding:18px 22px 22px;transition:all 0.35s;opacity:0;transform:translateY(24px);animation:cardFadeUp 0.5s ease forwards}
+.bottom-card{background:var(--bg-card);border-radius:22px;border:1px solid var(--border-subtle);padding:18px 22px 22px;transition:all 0.35s;opacity:1;transform:translateY(24px);animation:cardFadeUp 0.5s ease forwards}
 .bottom-card:nth-child(1){animation-delay:0.05s}
 .bottom-card:nth-child(2){animation-delay:0.12s}
 .bottom-card:hover{transform:translateY(-3px);border-color:rgba(79,140,255,0.18);box-shadow:0 12px 35px var(--glow-primary)}
@@ -155,7 +161,7 @@ tr:hover td{background:rgba(79,140,255,0.03)}
 .bottom-card ul li a{color:#4f8cff;text-decoration:none}
 .brand-label{font-size:15px;font-weight:700;color:var(--text-secondary);background:var(--bg-soft);padding:0 8px;border-radius:4px;border-left:2px solid rgba(79,140,255,0.15)}
 .software-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px;content-visibility:auto;contain-intrinsic-size:260px}
-.software-card{background:var(--bg-card);border-radius:20px;border:1px solid var(--border-subtle);padding:16px 18px 18px;transition:all 0.35s;opacity:0;transform:translateY(24px);animation:cardFadeUp 0.5s ease forwards}
+.software-card{background:var(--bg-card);border-radius:20px;border:1px solid var(--border-subtle);padding:16px 18px 18px;transition:all 0.35s;opacity:1;transform:translateY(24px);animation:cardFadeUp 0.5s ease forwards}
 .software-card:nth-child(1){animation-delay:0.04s}
 .software-card:nth-child(2){animation-delay:0.08s}
 .software-card:nth-child(3){animation-delay:0.12s}
@@ -180,20 +186,55 @@ tr:hover td{background:rgba(79,140,255,0.03)}
 .modal-card .av-section{margin-top:14px;border-top:1px solid var(--border-subtle);padding-top:12px}
 .modal-card .av-section .av-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px 10px}
 .modal-card .av-section .av-item{display:flex;justify-content:space-between;font-size:13px;padding:2px 0}
+.title-block{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.notice-entry{display:inline-flex;align-items:center;gap:7px;background:none;border:none;padding:2px 0;font-family:inherit;font-size:14px;font-weight:500;color:var(--badge-text);cursor:pointer;transition:color .2s}
+.notice-entry:hover{color:#a78bfa}
+.notice-entry-arrow{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;background:var(--gradient-btn);color:#fff;font-size:12px;line-height:1;box-shadow:0 2px 8px var(--glow-primary);transition:transform .2s}
+.notice-entry:hover .notice-entry-arrow{transform:translateX(3px)}
+.notice-entry:active .notice-entry-arrow{transform:scale(0.94)}
+.notice-card{max-width:640px}
+.notice-title{font-size:24px;font-weight:700;background:var(--gradient-title);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.notice-sub{font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:14px}
+.notice-item{background:var(--bg-soft);border:1px solid var(--border-subtle);border-radius:14px;padding:11px 13px;margin-bottom:9px}
+.notice-item-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.notice-num{width:20px;height:20px;border-radius:50%;background:var(--gradient-btn);color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.notice-item-title{font-size:15px;font-weight:600;color:var(--text-primary)}
+.notice-row{display:flex;gap:10px;font-size:13px;line-height:1.7;color:var(--text-secondary);padding:1px 0}
+.notice-k{flex:none;width:68px;color:var(--text-muted);font-size:12px}
+.notice-v{flex:1;min-width:0}
+.notice-foot{margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle);font-size:12px;color:var(--text-muted);line-height:1.8}
+@media (max-width:600px){.notice-row{flex-direction:column;gap:0}.notice-k{width:auto}.notice-title{font-size:21px}}
 .footer{margin-top:28px;font-size:13px;color:var(--text-muted);text-align:center;border-top:1px solid var(--border-subtle);padding-top:16px;content-visibility:auto;contain-intrinsic-size:60px}
+.device-tag{font-size:13px;color:var(--text-muted);margin-bottom:12px}
+.av-title{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px}
+.note-text{font-size:11px;color:var(--text-muted);white-space:nowrap}
+.dot{color:#4f8cff;font-size:12px;flex:none}
+.av-empty{color:var(--text-muted);font-size:13px;padding:26px 10px!important;text-align:center;white-space:normal}
+.codec-yes{color:#34d399;font-weight:600}
+.codec-no{color:#f87171;font-weight:600}
+.codec-unknown{color:var(--text-muted)}
+.codec-mid{color:#f5b85b;font-weight:600}
 .scroll-hint{display:none;font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:4px}
 @media (max-width:1100px){
 .page-title{font-size:28px}.section-label{font-size:18px}th,td{font-size:11px;padding:5px 3px}table{min-width:1000px}.bottom-grid{gap:14px}.software-grid{gap:14px}
 }
 @media (max-width:600px){
-.page-title{font-size:22px}.container{border-radius:18px}.bottom-grid{grid-template-columns:1fr}.software-grid{grid-template-columns:1fr}.scroll-hint{display:block}th,td{font-size:10px}.search-bar input{font-size:16px}
+.page-title{font-size:22px}.container{border-radius:18px}.bottom-grid{grid-template-columns:1fr}.software-grid{grid-template-columns:1fr}.scroll-hint{display:block}.chart-scroll-hint{display:block;margin:4px 0 0;white-space:nowrap}th,td{font-size:11px}.search-bar input{font-size:16px}
 }
+#codecTable{min-width:620px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.score-note{font-size:12px;color:var(--text-muted);text-align:center;margin:-18px 0 22px;line-height:1.7}
+.wifi-speed{display:block;font-size:11px;color:var(--text-muted);margin-top:2px;white-space:nowrap}
+.footer-meta{display:block;margin-top:6px;font-size:11px;color:var(--text-muted);letter-spacing:.5px}
 </style>
 </head>
 <body>
 <div class="container" id="mainContainer">
 <div class="header-top">
+<div class="title-block">
 <div class="page-title">⚡ 电视盒子PK</div>
+<button class="notice-entry" id="noticeEntry" type="button">购买须知<span class="notice-entry-arrow" aria-hidden="true">→</span></button>
+</div>
 <div class="header-right">
 <div class="header-meta">
 <div class="meta-line">📊 数据来源于B站UP主 <a href="https://space.bilibili.com/390423616/lists/7672860?type=season" target="_blank" rel="noopener noreferrer">当时只道是-寻常-</a></div>
@@ -207,7 +248,7 @@ tr:hover td{background:rgba(79,140,255,0.03)}
 </div>
 </div>
 <div class="section-label">📺 电视盒子硬件配置 <span style="font-size:13px;font-weight:400;color:var(--text-muted);margin-left:10px">（点击表头可排序）</span></div>
-<div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 搜索型号..." /></div>
+<div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 搜索型号..." aria-label="搜索电视盒子型号" /></div>
 <div class="filter-group" id="filterGroup">
 <button class="filter-btn active" data-filter="all">全部</button>
 <button class="filter-btn" data-filter="晶晨">晶晨</button>
@@ -216,30 +257,40 @@ tr:hover td{background:rgba(79,140,255,0.03)}
 <div class="scroll-hint">⇄ 左右滑动查看更多参数</div>
 <div class="table-wrap">
 <table id="mainTable">
-<thead><tr>
-<th data-col="name">名称</th><th data-col="config">配置<br><span style="font-weight:300;font-size:10px">(内存+硬盘)</span></th>
-<th data-col="chip">芯片</th><th data-col="total" class="sortable">总分</th>
-<th data-col="process" class="sortable">制程</th><th data-col="cpu" class="sortable">CPU</th>
-<th data-col="cores">核心</th><th data-col="gpuScore" class="sortable">GPU</th>
-<th data-col="gpuName">GPU名称</th><th data-col="mem" class="sortable">内存+硬盘</th>
-<th data-col="bandwidth" class="sortable">内存带宽<br><span style="font-weight:300;font-size:10px">(GB/s)</span></th>
-<th data-col="sys" class="sortable">系统跑分</th><th data-col="android">安卓版本</th>
-<th data-col="eth">网口</th><th data-col="wifi" class="sortable">Wifi</th><th data-col="usb">USB</th>
+<caption class="sr-only">电视盒子硬件配置对比表</caption><thead><tr>
+<th scope="col" data-col="name">名称</th><th scope="col" data-col="config">配置<br><span style="font-weight:300;font-size:10px">(内存+硬盘)</span></th>
+<th scope="col" data-col="chip">芯片</th><th scope="col" data-col="total" class="sortable">总分</th>
+<th scope="col" data-col="process" class="sortable">制程</th><th scope="col" data-col="cpu" class="sortable">CPU</th>
+<th scope="col" data-col="cores">核心</th><th scope="col" data-col="gpuScore" class="sortable">GPU</th>
+<th scope="col" data-col="gpuName">GPU名称</th><th scope="col" data-col="mem" class="sortable">内存+硬盘</th>
+<th scope="col" data-col="bandwidth" class="sortable">内存带宽<br><span style="font-weight:300;font-size:10px">(GB/s)</span></th>
+<th scope="col" data-col="sys" class="sortable">系统跑分</th><th scope="col" data-col="android">安卓版本</th>
+<th scope="col" data-col="eth">网口</th><th scope="col" data-col="wifi" class="sortable">WiFi（速率）</th><th scope="col" data-col="usb">USB</th>
 </tr></thead>
 <tbody id="mainTbody"></tbody>
 </table>
 </div>
+<div class="score-note">📐 总分 = CPU + 内存硬盘 + GPU + 系统跑分（四项直接相加，非加权评分）</div>
 <div class="chart-box" id="chartBox">
-<div class="chart-title">📊 性能三围：总分 · CPU · GPU</div>
+<div class="chart-title">📊 性能三围：总分 · CPU · GPU<span class="chart-scroll-hint">⇄ 左右滑动查看全部型号</span></div>
 <div class="chart-container" id="chartCpuGpu"></div>
 </div>
 <div class="section-label">🎬 电视盒子影音支持</div>
 <div class="scroll-hint">⇄ 左右滑动查看更多规格</div>
 <div class="table-wrap">
-<table id="avTable"><thead><tr>
-<th>型号</th><th>4K60Hz</th><th>1080P120Hz</th><th>4K120Hz</th><th>HDR10</th><th>HDR10+</th><th>杜比视界</th><th>杜比全景声</th><th>DTS:X</th>
+<table id="avTable"><caption class="sr-only">电视盒子影音支持对比表</caption><thead><tr>
+<th scope="col">型号</th><th scope="col">4K60Hz</th><th scope="col">1080P120Hz</th><th scope="col">4K120Hz</th><th scope="col">HDR10</th><th scope="col">杜比视界</th><th scope="col">杜比全景声</th>
 </tr></thead>
 <tbody id="avTbody"></tbody>
+</table>
+</div>
+<div class="section-label">🧬 视频编解码能力</div>
+<div class="scroll-hint">⇄ 左右滑动查看更多规格</div>
+<div class="table-wrap">
+<table id="codecTable"><caption class="sr-only">电视盒子视频编解码能力对比表</caption><thead><tr>
+<th scope="col">型号</th><th scope="col">芯片平台</th><th scope="col">H.264 / AVC</th><th scope="col">H.265 / HEVC</th><th scope="col">AV1</th><th scope="col">HDR 位深</th>
+</tr></thead>
+<tbody id="codecTbody"></tbody>
 </table>
 </div>
 <div class="bottom-grid">
@@ -270,41 +321,111 @@ tr:hover td{background:rgba(79,140,255,0.03)}
 <div class="footer">
 <span>数据仅供参考，请勿创造需求，理性购买</span><br>
 <span style="font-size:12px">🔒 零第三方请求 · 无统计脚本 · 纯静态页面</span>
+<span class="footer-meta">数据更新 2026.11 · v2.3</span>
 </div>
 </div>
 <div class="modal-overlay" id="modalOverlay">
-<div class="modal-card">
-<button class="close-btn" id="modalCloseBtn">✕</button>
+<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalDeviceName">
+<button class="close-btn" id="modalCloseBtn" aria-label="关闭详情">✕</button>
 <div class="device-name" id="modalDeviceName"></div>
 <div class="device-tag" id="modalDeviceTag"></div>
 <div class="detail-grid" id="modalDetailGrid"></div>
 <div class="av-section"><div class="av-title">🎬 影音支持</div><div class="av-grid" id="modalAvGrid"></div></div>
 </div>
 </div>
+<div class="modal-overlay" id="noticeOverlay">
+<div class="modal-card notice-card" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
+<button class="close-btn" id="noticeCloseBtn" aria-label="关闭购买须知">✕</button>
+<div class="notice-title" id="noticeTitle">🛒 购买须知</div>
+<div class="notice-sub">买盒子别只比总分，这六项才决定每天用起来顺不顺。</div>
+<div class="notice-item"><div class="notice-item-head"><span class="notice-num">1</span><span class="notice-item-title">解码能力</span></div><div class="notice-row"><span class="notice-k">是什么</span><span class="notice-v">把压缩过的视频「还原」成画面的本领，页面下方编解码表列的就是它认得哪些格式。</span></div><div class="notice-row"><span class="notice-k">为什么重要</span><span class="notice-v">格式不认得就只能靠软件硬撑，容易卡顿、发烫、音画不同步，4K 片源最明显。</span></div><div class="notice-row"><span class="notice-k">PK 看什么</span><span class="notice-v">编解码表里 ✔ 越多越省心；4K 片源看 H.265，网络视频再看 AV1；HDR 位深看本表，杜比视界看下面影音支持表。</span></div></div><div class="notice-item"><div class="notice-item-head"><span class="notice-num">2</span><span class="notice-item-title">GPU 能力</span></div><div class="notice-row"><span class="notice-k">是什么</span><span class="notice-v">负责画面绘制的部分，桌面滑动、海报墙、动画和小游戏都靠它。</span></div><div class="notice-row"><span class="notice-k">为什么重要</span><span class="notice-v">GPU 弱，CPU 再强也会觉得「点一下等半天」，界面不跟手。</span></div><div class="notice-row"><span class="notice-k">PK 看什么</span><span class="notice-v">看 GPU 那一列，别只盯总分；它和 CPU 是两件事，别混着比。</span></div></div><div class="notice-item"><div class="notice-item-head"><span class="notice-num">3</span><span class="notice-item-title">CPU 单核能力</span></div><div class="notice-row"><span class="notice-k">是什么</span><span class="notice-v">处理器单个核心干活的速度。多数应用一次只用一个核。</span></div><div class="notice-row"><span class="notice-k">为什么重要</span><span class="notice-v">打开应用、加载封面、切换设置这些「一下一下」的操作，靠单核，不靠核心数量。</span></div><div class="notice-row"><span class="notice-k">PK 看什么</span><span class="notice-v">看 CPU 一列，别被「4 核 / 5 核」带偏；总分接近时，单核高的日常更跟手。</span></div></div><div class="notice-item"><div class="notice-item-head"><span class="notice-num">4</span><span class="notice-item-title">内存与存储</span></div><div class="notice-row"><span class="notice-k">是什么</span><span class="notice-v">内存决定能同时开多少应用，存储决定能装多少应用和缓存，表里「2+32」「4+64」就是它。</span></div><div class="notice-row"><span class="notice-k">为什么重要</span><span class="notice-v">内存小，切个应用就重新加载；存储小，装几个播放器就满。</span></div><div class="notice-row"><span class="notice-k">PK 看什么</span><span class="notice-v">同价位优先选大的；只写「支持 4K」不够，高码率片源很吃内存和缓存。</span></div></div><div class="notice-item"><div class="notice-item-head"><span class="notice-num">5</span><span class="notice-item-title">Wi-Fi 与网口</span></div><div class="notice-row"><span class="notice-k">是什么</span><span class="notice-v">片源进盒子的通道，双频 / WiFi6、百兆 / 千兆网口说的都是它。</span></div><div class="notice-row"><span class="notice-k">为什么重要</span><span class="notice-v">高码率 4K 原盘、家里 NAS 播放，卡在缓冲上时换什么芯片都没用。</span></div><div class="notice-row"><span class="notice-k">PK 看什么</span><span class="notice-v">插网线看「网口」是不是千兆；只用无线看 WiFi 是不是双频 / WiFi6。</span></div></div><div class="notice-item"><div class="notice-item-head"><span class="notice-num">6</span><span class="notice-item-title">系统与安卓版本</span></div><div class="notice-row"><span class="notice-k">是什么</span><span class="notice-v">盒子的系统版本和自带桌面，表里「安卓版本」一列就是它。</span></div><div class="notice-row"><span class="notice-k">为什么重要</span><span class="notice-v">版本太老，新应用装不上、投屏和会员认证容易出问题；自带桌面还决定开机广告和能不能换桌面。</span></div><div class="notice-row"><span class="notice-k">PK 看什么</span><span class="notice-v">别只比版本数字，也留意是否还在更新、能不能装第三方播放器和桌面。</span></div></div>
+<div class="notice-foot">先想清楚自己看什么片源、怎么连网，再回表里找对应的列，比挑总分最高的更靠谱。<br>数据仅供参考，请勿创造需求，理性购买。</div>
+</div>
+</div>
 <div id="toast"></div>
 <script>
 (function(){function s(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('tvboxpk-theme',t)}catch(_){}document.getElementById('themeLabel').textContent=t==='dark'?'深色':'浅色';var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t==='dark'?'#0d1428':'#f0f4ff');typeof refreshChart=='function'&&refreshChart()}document.getElementById('themeToggle').addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')||'light';s(n==='dark'?'light':'dark');showToast(n==='dark'?'☀️ 浅色模式':'🌙 深色模式')});var c=(function(){try{return localStorage.getItem('tvboxpk-theme')}catch(_){return null}})()||'light';document.documentElement.setAttribute('data-theme',c);document.getElementById('themeLabel').textContent=c==='dark'?'深色':'浅色';var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',c==='dark'?'#0d1428':'#f0f4ff')})();
 function showToast(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(e._timer);e._timer=setTimeout(function(){e.classList.remove('show')},2000)}
-var devices=[],avData=[],currentFilter='all',currentSort={col:null,dir:null},searchQuery='',chartInitialized=false;
+var devices=[],avData=[],codecData=[],currentFilter='all',currentSort={col:null,dir:null},searchQuery='',chartInitialized=false;
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function findDevice(n){return devices.find(function(d){return d.name===n})}
 function findAv(n){return avData.find(function(d){return d.name===n})}
-function loadData(){fetch('data.json').then(function(r){if(!r.ok)throw new Error;return r.json()}).then(function(d){devices=d.devices;avData=d.avData;renderMain();renderAv();setupSorting();setupFilter();setupSearch();initChart()}).catch(function(){var s=document.createElement('script');s.src='data.js';s.onload=function(){devices=tvboxBackupDevices;avData=tvboxBackupAv;renderMain();renderAv();setupSorting();setupFilter();setupSearch();initChart()};s.onerror=function(){document.getElementById('mainTbody').innerHTML='<tr><td colspan="16" style="text-align:center;padding:50px 20px;color:var(--text-muted);font-size:14px;line-height:2;white-space:normal">⚠️ <b>数据加载失败</b><br>请确认 <code>data.json</code> 和 <code>data.js</code> 与页面在同一目录。<br><br>✅ 部署到 GitHub Pages 后自动恢复正常。<br>本地开发：用 VS Code Live Server 或 <code>python -m http.server</code></td></tr>';document.getElementById('avTbody').innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">⚠️ 数据加载失败</td></tr>'};document.head.appendChild(s)})}
+function loadData(){fetch('data.json').then(function(r){if(!r.ok)throw new Error;return r.json()}).then(function(d){devices=d.devices;avData=d.avData;codecData=d.codecData||[];renderMain();setupSorting();setupFilter();setupSearch();initChart()}).catch(function(){var s=document.createElement('script');s.src='data.js';s.onload=function(){devices=tvboxBackupDevices;avData=tvboxBackupAv;codecData=typeof tvboxBackupCodec!=='undefined'?tvboxBackupCodec:[];renderMain();setupSorting();setupFilter();setupSearch();initChart()};s.onerror=function(){document.getElementById('mainTbody').innerHTML='<tr><td colspan="16" style="text-align:center;padding:50px 20px;color:var(--text-muted);font-size:14px;line-height:2;white-space:normal">⚠️ <b>数据加载失败</b><br>请确认 <code>data.json</code> 和 <code>data.js</code> 与页面在同一目录。<br><br>✅ 部署到 GitHub Pages 后自动恢复正常。<br>本地开发：用 VS Code Live Server 或 <code>python -m http.server</code></td></tr>';document.getElementById('avTbody').innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">⚠️ 数据加载失败</td></tr>'};document.head.appendChild(s)})}
 function getFilteredData(){var d=devices;if(currentFilter!=='all')d=d.filter(function(x){return x.chip.includes(currentFilter)});if(searchQuery.trim()!==''){var q=searchQuery.trim().toLowerCase();d=d.filter(function(x){return x.name.toLowerCase().includes(q)})}return d}
-function getSortedData(d){if(!currentSort.col)return d;var s=d.slice(),c=currentSort.col,dir=currentSort.dir;s.sort(function(a,b){var va=a[c]||'',vb=b[c]||'';if(!isNaN(parseFloat(va))&&!isNaN(parseFloat(vb))){va=parseFloat(va);vb=parseFloat(vb)}if(typeof va==='string')va=va.toLowerCase();if(typeof vb==='string')vb=vb.toLowerCase();return va<vb?(dir==='asc'?-1:1):va>vb?(dir==='asc'?1:-1):0});return s}
-function renderMain(){var data=getSortedData(getFilteredData()),tbody=document.getElementById('mainTbody');tbody.innerHTML=data.map(function(d){return '<tr><td><span class="model-name" tabindex="0" role="button" data-name="'+escapeHtml(d.name)+'">'+escapeHtml(d.name)+'</span>'+(d.isTv?' <span class="badge badge-tv">电视</span>':'')+'</td><td>'+escapeHtml(d.config)+'</td><td><span class="badge">'+escapeHtml(d.chip)+'</span></td><td class="score-highlight">'+d.total.toLocaleString()+'</td><td><span class="badge">'+escapeHtml(d.process)+'</span></td><td class="score-highlight">'+d.cpu.toLocaleString()+'</td><td>'+escapeHtml(d.cores)+'</td><td class="score-highlight">'+d.gpuScore.toLocaleString()+'</td><td>'+escapeHtml(d.gpuName||'—')+'</td><td class="score-highlight">'+(d.mem||'—').toLocaleString()+'</td><td>'+escapeHtml(d.bandwidth||'—')+'</td><td class="score-highlight">'+(d.sys||'—').toLocaleString()+'</td><td><span class="badge">'+escapeHtml(d.android)+'</span></td><td>'+(d.eth==='千兆'?'<span class="badge badge-gold">千兆</span>':escapeHtml(d.eth))+'</td><td>'+escapeHtml(d.wifi)+'</td><td>'+(d.usb!=='2.0'?'<span class="badge badge-gold">'+escapeHtml(d.usb)+'</span>':escapeHtml(d.usb))+'</td></tr>'}).join('');document.querySelectorAll('.model-name').forEach(function(el){var fn=function(){openModal(el.dataset.name)};el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})});refreshChart()}
-function renderAv(){var h=['4K60Hz','1080P120Hz','4K120Hz','HDR10','HDR10+','杜比视界','杜比全景声','DTS:X'];document.getElementById('avTbody').innerHTML=avData.map(function(i){return '<tr><td>'+escapeHtml(i.name)+(i.name==='雷鸟鹏6'?' <span class="badge badge-tv">电视</span>':'')+'</td>'+h.map(function(k){var sym=i[k]?'✔':'×',cls=i[k]?'symbol symbol-yes':'symbol symbol-no';var note='';if(i[k]&&(k==='杜比全景声'||k==='DTS:X')&&['当贝H5（新）','极光3pro','极光6se'].includes(i.name))note='需源码透传';return '<td><span class="'+cls+'">'+sym+'</span>'+(note?' <span class="note-text">('+note+')</span>':'')+'</td>'}).join('')+'</tr>'}).join('')}
+function getSortedData(d){if(!currentSort.col)return d;var s=d.slice(),c=currentSort.col,dir=currentSort.dir;s.sort(function(a,b){var va=a[c]==null?'':a[c],vb=b[c]==null?'':b[c];if(!isNaN(parseFloat(va))&&!isNaN(parseFloat(vb))){va=parseFloat(va);vb=parseFloat(vb)}if(typeof va==='string')va=va.toLowerCase();if(typeof vb==='string')vb=vb.toLowerCase();return va<vb?(dir==='asc'?-1:1):va>vb?(dir==='asc'?1:-1):0});return s}
+function renderMain(){var data=getSortedData(getFilteredData()),tbody=document.getElementById('mainTbody');tbody.innerHTML=data.map(function(d){return '<tr><td><span class="model-name" tabindex="0" role="button" data-name="'+escapeHtml(d.name)+'">'+escapeHtml(d.name)+'</span>'+(d.isTv?' <span class="badge badge-tv">电视</span>':'')+'</td><td>'+escapeHtml(d.config)+'</td><td><span class="badge">'+escapeHtml(d.chip)+'</span></td><td class="score-highlight">'+d.total.toLocaleString()+'</td><td><span class="badge">'+escapeHtml(d.process)+'</span></td><td class="score-highlight">'+d.cpu.toLocaleString()+'</td><td>'+escapeHtml(d.cores)+'</td><td class="score-highlight">'+d.gpuScore.toLocaleString()+'</td><td>'+escapeHtml(d.gpuName||'—')+'</td><td class="score-highlight">'+(d.mem||'—').toLocaleString()+'</td><td>'+escapeHtml(d.bandwidth||'—')+'</td><td class="score-highlight">'+(d.sys||'—').toLocaleString()+'</td><td><span class="badge">'+escapeHtml(d.android)+'</span></td><td>'+(d.eth==='千兆'?'<span class="badge badge-gold">千兆</span>':escapeHtml(d.eth))+'</td><td>'+escapeHtml(d.wifi)+(d.wifiSpeed?'<span class="wifi-speed">'+escapeHtml(d.wifiSpeed)+'</span>':'')+'</td><td>'+(d.usb!=='2.0'?'<span class="badge badge-gold">'+escapeHtml(d.usb)+'</span>':escapeHtml(d.usb))+'</td></tr>'}).join('');document.querySelectorAll('.model-name').forEach(function(el){var fn=function(){openModal(el.dataset.name)};el.addEventListener('click',fn);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}})});refreshChart();renderAv();renderCodec()}
+function renderAv(){var h=['4K60Hz','1080P120Hz','4K120Hz','HDR10','杜比视界','杜比全景声'];var visible=getSortedData(getFilteredData()),order={};visible.forEach(function(d,i){order[d.name]=i});var rows=avData.filter(function(i){return Object.prototype.hasOwnProperty.call(order,i.name)}).sort(function(a,b){return order[a.name]-order[b.name]});var tbody=document.getElementById('avTbody');if(!rows.length){tbody.innerHTML='<tr><td colspan="7" class="av-empty">暂无匹配数据</td></tr>';return}tbody.innerHTML=rows.map(function(i){var dev=findDevice(i.name);return '<tr><td>'+escapeHtml(i.name)+(dev&&dev.isTv?' <span class="badge badge-tv">电视</span>':'')+'</td>'+h.map(function(k){var v=i[k],sym=v===true?'✔':v===false?'×':'—',cls=v===true?'symbol symbol-yes':v===false?'symbol symbol-no':'symbol-unknown';var note='';if(v===true&&k==='杜比全景声'&&i.needPassthrough===true)note='需源码透传';return '<td><span class="'+cls+'">'+sym+'</span>'+(note?' <span class="note-text">('+note+')</span>':'')+'</td>'}).join('')+'</tr>'}).join('')}
+function renderCodec(){var tbody=document.getElementById('codecTbody');if(!tbody)return;var visible=getSortedData(getFilteredData()),order={};visible.forEach(function(d,i){order[d.name]=i});var rows=codecData.filter(function(i){return Object.prototype.hasOwnProperty.call(order,i.name)}).sort(function(a,b){return order[a.name]-order[b.name]});if(!rows.length){tbody.innerHTML='<tr><td colspan="6" class="av-empty">暂无匹配数据</td></tr>';return}tbody.innerHTML=rows.map(function(i){var cells=['h264','h265','av1','hdr'].map(function(k){var v=String(i[k]||'—'),cls=(v.indexOf('✔')===0||v.indexOf('10-bit')===0)?'codec-yes':v.indexOf('×')===0?'codec-no':v.indexOf('8-bit')===0?'codec-mid':'codec-unknown';return '<td><span class="'+cls+'">'+escapeHtml(v)+'</span></td>'}).join('');return '<tr><td>'+escapeHtml(i.name)+'</td><td><span class="badge">'+escapeHtml(i.chip)+'</span></td>'+cells+'</tr>'}).join('')}
 function refreshChart(){if(chartInitialized)renderChart(getSortedData(getFilteredData()))}
 function initChart(){var dom=document.getElementById('chartCpuGpu');if(!dom||chartInitialized)return;dom.innerHTML='<div class="chart-legend" id="chartLegend"></div><div class="chart-svg-wrap" id="chartSvgWrap"></div>';chartInitialized=true;document.getElementById('chartSvgWrap').addEventListener('click',function(e){var r=e.target.closest&&e.target.closest('rect'),t=r&&r.querySelector('title');if(t)showToast(t.textContent)});var timer;function rs(){clearTimeout(timer);timer=setTimeout(refreshChart,150)};window.addEventListener('resize',rs);window.addEventListener('orientationchange',rs);refreshChart()}
 function fmtWan(v){return v>=10000?(Math.round(v/100)/100)+'万':String(v)}
-function renderChart(data){var wrap=document.getElementById('chartSvgWrap');if(!wrap)return;if(!data.length){wrap.innerHTML='<div class="chart-empty">暂无数据</div>';return}var isDark=document.documentElement.getAttribute('data-theme')==='dark',textColor=isDark?'#b0cce0':'#4a5568',gridColor=isDark?'#1a2a3a':'#edf2f7',W=Math.max(wrap.clientWidth||0,320),H=Math.max(wrap.clientHeight||0,160),pad={top:24,right:12,bottom:44,left:42},iw=W-pad.left-pad.right,ih=H-pad.top-pad.bottom;var groups=['总分','CPU','GPU'],colors=[['#f472b6','#be5a9a'],['#6b8cff','#4f6bc0'],['#a78bfa','#7c5cdb']],maxVal=Math.max(1,Math.max.apply(null,data.map(function(d){return Math.max(d.total,d.cpu,d.gpuScore)}))),step=Math.pow(10,Math.floor(Math.log10(maxVal))),niceMax=Math.ceil(maxVal/step)*step;var defs='',bars='',xLabels='',grid='';colors.forEach(function(c,gi){defs+='<linearGradient id="g'+gi+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient>'});var yCount=4;for(var i=0;i<=yCount;i++){var v=niceMax*i/yCount,y=pad.top+ih-ih*i/yCount;grid+='<line x1="'+pad.left+'" y1="'+y.toFixed(1)+'" x2="'+(W-pad.right)+'" y2="'+y.toFixed(1)+'" stroke="'+gridColor+'" stroke-width="1"'+(i===0?'':' stroke-dasharray="4 4"')+'/><text x="'+(pad.left-6)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-size="10" fill="'+textColor+'">'+fmtWan(v)+'</text>'}var slot=iw/data.length,barW=Math.min(18,Math.max(6,slot*0.16)),groupW=barW*3+6;data.forEach(function(d,i){var cx=pad.left+slot*i+slot/2,x0=cx-groupW/2,vals=[d.total,d.cpu,d.gpuScore];vals.forEach(function(v,gi){var bh=Math.max(1,ih*v/niceMax),bx=x0+gi*(barW+3),by=pad.top+ih-bh;bars+='<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="url(#g'+gi+')"><title>'+escapeHtml(d.name)+' · '+groups[gi]+'：'+v.toLocaleString()+'</title></rect>'});var ly=pad.top+ih+14;xLabels+='<text x="'+cx.toFixed(1)+'" y="'+ly+'" text-anchor="end" font-size="10" fill="'+textColor+'" transform="rotate(-20 '+cx.toFixed(1)+' '+ly+')">'+escapeHtml(d.name)+'</text>'});document.getElementById('chartLegend').innerHTML=groups.map(function(g,i){return '<span class="legend-item"><i style="background:'+colors[i][0]+'"></i>'+g+'</span>'}).join('');wrap.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img"><defs>'+defs+'</defs>'+grid+bars+xLabels+'</svg>'}
-function setupSorting(){var hs=document.querySelectorAll('#mainTable th.sortable');hs.forEach(function(h){h.addEventListener('click',function(){var col=this.dataset.col;if(!col)return;if(currentSort.col===col)currentSort.dir=currentSort.dir==='asc'?'desc':'asc';else{currentSort.col=col;currentSort.dir='asc'}hs.forEach(function(h2){var ic=h2.querySelector('.sort-icon');if(ic)ic.remove()});var icon=document.createElement('span');icon.className='sort-icon';icon.textContent=currentSort.dir==='asc'?'▲':'▼';this.appendChild(icon);renderMain();showToast('排序：'+this.textContent.trim()+' '+((currentSort.dir==='asc')?'升序':'降序'))})})}
+function renderChart(data){
+var wrap=document.getElementById('chartSvgWrap');if(!wrap)return;
+if(!data.length){wrap.innerHTML='<div class="chart-empty">暂无数据</div>';return}
+var isDark=document.documentElement.getAttribute('data-theme')==='dark',
+    textColor=isDark?'#b0cce0':'#4a5568',
+    gridColor=isDark?'#1a2a3a':'#edf2f7',
+    pad={top:18,right:12,bottom:12,left:42},
+    cw=wrap.clientWidth||0,narrow=cw>0&&cw<560,
+    rows=data.length>=5?2:1,perRow=Math.ceil(data.length/rows),
+    box=wrap.parentNode;
+if(box&&box.style)box.style.height=(rows===2?340:220)+'px';
+var W=Math.max(cw,320,pad.left+pad.right+perRow*(narrow?68:0)),
+    H=Math.max(wrap.clientHeight||0,160),
+    iw=W-pad.left-pad.right,ih=H-pad.top-pad.bottom,
+    rowH=ih/rows,labelH=18,gap=10;
+var groups=['总分','CPU','GPU'],
+    colors=[['#f472b6','#be5a9a'],['#6b8cff','#4f6bc0'],['#a78bfa','#7c5cdb']],
+    maxVal=Math.max(1,Math.max.apply(null,data.map(function(d){return Math.max(d.total,d.cpu,d.gpuScore)}))),
+    step=Math.pow(10,Math.floor(Math.log10(maxVal))),niceMax=Math.ceil(maxVal/step)*step;
+var defs='',bars='',xLabels='',grid='';
+colors.forEach(function(c,gi){defs+='<linearGradient id="g'+gi+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient>'});
+var yCount=4,slot=iw/perRow,barW=Math.min(22,Math.max(7,slot*0.16)),groupW=barW*3+6;
+for(var r=0;r<rows;r++){
+  var rowTop=pad.top+r*rowH,plotH=rowH-labelH-gap,baseY=rowTop+plotH;
+  for(var i=0;i<=yCount;i++){
+    var v=niceMax*i/yCount,y=baseY-plotH*i/yCount;
+    grid+='<line x1="'+pad.left+'" y1="'+y.toFixed(1)+'" x2="'+(W-pad.right)+'" y2="'+y.toFixed(1)+'" stroke="'+gridColor+'" stroke-width="1"'+(i===0?'':' stroke-dasharray="4 4"')+'/><text x="'+(pad.left-6)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-size="10" fill="'+textColor+'">'+fmtWan(v)+'</text>';
+  }
+  if(r>0){grid+='<line x1="'+pad.left+'" y1="'+(rowTop-5).toFixed(1)+'" x2="'+(W-pad.right)+'" y2="'+(rowTop-5).toFixed(1)+'" stroke="'+gridColor+'" stroke-width="1"/>'}
+  data.slice(r*perRow,(r+1)*perRow).forEach(function(d,i){
+    var cx=pad.left+slot*i+slot/2,x0=cx-groupW/2,vals=[d.total,d.cpu,d.gpuScore];
+    vals.forEach(function(v,gi){
+      var bh=Math.max(1,plotH*v/niceMax),bx=x0+gi*(barW+3),by=baseY-bh;
+      bars+='<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2" fill="url(#g'+gi+')"><title>'+escapeHtml(d.name)+' · '+groups[gi]+'：'+v.toLocaleString()+'</title></rect>';
+    });
+    var label=narrow?String(d.name).replace(/（[^）]*）/g,'').slice(0,5):d.name;
+    xLabels+='<text class="x-label" x="'+cx.toFixed(1)+'" y="'+(baseY+14).toFixed(1)+'" text-anchor="middle" font-size="11" fill="'+textColor+'">'+escapeHtml(label)+'</text>';
+  });
+}
+document.getElementById('chartLegend').innerHTML=groups.map(function(g,i){return '<span class="legend-item"><i style="background:'+colors[i][0]+'"></i>'+g+'</span>'}).join('');
+wrap.innerHTML='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img"><defs>'+defs+'</defs>'+grid+bars+xLabels+'</svg>'
+}
+
+function setupSorting(){var hs=document.querySelectorAll('#mainTable th.sortable');hs.forEach(function(h){h.addEventListener('click',function(){var col=this.dataset.col;if(!col)return;var label=(this.firstChild&&this.firstChild.nodeValue||'').trim()||col;if(currentSort.col===col)currentSort.dir=currentSort.dir==='asc'?'desc':'asc';else{currentSort.col=col;currentSort.dir='asc'}hs.forEach(function(h2){var ic=h2.querySelector('.sort-icon');if(ic)ic.remove()});var icon=document.createElement('span');icon.className='sort-icon';icon.textContent=currentSort.dir==='asc'?'▲':'▼';this.appendChild(icon);renderMain();showToast('排序：'+label+' '+((currentSort.dir==='asc')?'升序':'降序'))})})}
 function setupFilter(){var btns=document.querySelectorAll('.filter-btn');btns.forEach(function(btn){btn.addEventListener('click',function(){btns.forEach(function(b){b.classList.remove('active')});this.classList.add('active');currentFilter=this.dataset.filter;renderMain();showToast('筛选：'+this.textContent)})})}
 function setupSearch(){var input=document.getElementById('searchInput'),timer;input.addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(function(){searchQuery=this.value;renderMain();if(searchQuery.trim()!=='')showToast('搜索：'+searchQuery.trim())}.bind(this),300)})}
-var overlay=document.getElementById('modalOverlay'),closeBtn=document.getElementById('modalCloseBtn'),container=document.getElementById('mainContainer');
-function openModal(name){var d=findDevice(name),av=findAv(name);if(!d||!av)return;document.getElementById('modalDeviceName').textContent=d.name;document.getElementById('modalDeviceTag').textContent=d.config+' ｜ '+d.chip+' ｜ '+(d.isTv?'电视':'电视盒子');var fields=[{label:'总分',value:d.total.toLocaleString()},{label:'制程',value:d.process},{label:'CPU',value:d.cpu.toLocaleString()},{label:'核心',value:d.cores},{label:'GPU',value:d.gpuScore.toLocaleString()},{label:'GPU名称',value:d.gpuName},{label:'内存+硬盘',value:(d.mem||'—').toLocaleString()},{label:'内存带宽 (GB/s)',value:d.bandwidth||'—'},{label:'系统跑分',value:(d.sys||'—').toLocaleString()},{label:'安卓版本',value:d.android},{label:'网口',value:d.eth},{label:'Wifi',value:d.wifi},{label:'USB',value:d.usb}];document.getElementById('modalDetailGrid').innerHTML=fields.map(function(f){return '<div class="detail-item"><span class="label">'+f.label+'</span><span class="value">'+f.value+'</span></div>'}).join('');var avKeys=['4K60Hz','1080P120Hz','4K120Hz','HDR10','HDR10+','杜比视界','杜比全景声','DTS:X'];document.getElementById('modalAvGrid').innerHTML=avKeys.map(function(k){var supported=av[k],sym=supported?'✔':'×',color=supported?'#34d399':'#f87171';return '<div class="av-item"><span class="label">'+k+'</span><span class="value" style="color:'+color+'">'+sym+'</span></div>'}).join('');overlay.classList.add('active');container.classList.add('blur');document.body.style.overflow='hidden'}
-function closeModal(){overlay.classList.remove('active');container.classList.remove('blur');document.body.style.overflow=''}
-overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal()});closeBtn.addEventListener('click',closeModal);document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()});
+var overlay=document.getElementById('modalOverlay'),closeBtn=document.getElementById('modalCloseBtn'),container=document.getElementById('mainContainer'),lastModalTrigger=null;
+function openModal(name){var d=findDevice(name),av=findAv(name);if(!d||!av)return;lastModalTrigger=document.activeElement;document.getElementById('modalDeviceName').textContent=d.name;document.getElementById('modalDeviceTag').textContent=d.config+' ｜ '+d.chip+' ｜ '+(d.isTv?'电视':'电视盒子');var fields=[{label:'总分',value:d.total.toLocaleString()},{label:'制程',value:d.process},{label:'CPU',value:d.cpu.toLocaleString()},{label:'核心',value:d.cores},{label:'GPU',value:d.gpuScore.toLocaleString()},{label:'GPU名称',value:d.gpuName},{label:'内存+硬盘',value:(d.mem||'—').toLocaleString()},{label:'内存带宽 (GB/s)',value:d.bandwidth||'—'},{label:'系统跑分',value:(d.sys||'—').toLocaleString()},{label:'安卓版本',value:d.android},{label:'网口',value:d.eth},{label:'WiFi（速率）',value:d.wifi+(d.wifiSpeed?' / '+d.wifiSpeed:'')},{label:'USB',value:d.usb}];document.getElementById('modalDetailGrid').innerHTML=fields.map(function(f){return '<div class="detail-item"><span class="label">'+f.label+'</span><span class="value">'+escapeHtml(f.value)+'</span></div>'}).join('');var avKeys=['4K60Hz','1080P120Hz','4K120Hz','HDR10','杜比视界','杜比全景声'];document.getElementById('modalAvGrid').innerHTML=avKeys.map(function(k){var v=av[k],sym=v===true?'✔':v===false?'×':'—',color=v===true?'#34d399':v===false?'#f87171':'var(--text-muted)';return '<div class="av-item"><span class="label">'+k+'</span><span class="value" style="color:'+color+'">'+sym+'</span></div>'}).join('');overlay.classList.add('active');container.classList.add('blur');document.body.style.overflow='hidden'}
+function closeModal(){if(!overlay.classList.contains('active'))return;overlay.classList.remove('active');container.classList.remove('blur');document.body.style.overflow='';if(lastModalTrigger&&lastModalTrigger.focus)lastModalTrigger.focus()}
+overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal()});closeBtn.addEventListener('click',closeModal);
+var noticeOverlay=document.getElementById('noticeOverlay'),noticeEntry=document.getElementById('noticeEntry'),noticeCloseBtn=document.getElementById('noticeCloseBtn');
+function openNotice(){noticeOverlay.classList.add('active');container.classList.add('blur');document.body.style.overflow='hidden';noticeCloseBtn.focus()}
+function closeNotice(){if(!noticeOverlay.classList.contains('active'))return;noticeOverlay.classList.remove('active');container.classList.remove('blur');document.body.style.overflow='';noticeEntry.focus()}
+noticeEntry.addEventListener('click',openNotice);
+noticeCloseBtn.addEventListener('click',closeNotice);
+noticeOverlay.addEventListener('click',function(e){if(e.target===noticeOverlay)closeNotice()});
+document.addEventListener('keydown',function(e){
+if(e.key==='Escape'){if(noticeOverlay.classList.contains('active'))closeNotice();else closeModal();return}
+if(e.key!=='Tab')return;
+var card=document.querySelector('#noticeOverlay.active .modal-card')||document.querySelector('#modalOverlay.active .modal-card');
+if(!card)return;
+var f=card.querySelectorAll('button,[href],input,[tabindex]:not([tabindex="-1"])');
+if(!f.length)return;
+var first=f[0],last=f[f.length-1];
+if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+});
 loadData();
 </script>
 </body>
